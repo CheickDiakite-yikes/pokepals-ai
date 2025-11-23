@@ -1,0 +1,20 @@
+{
+  "short_name": "PokePals",
+  "name": "PokePals: Retro Friend Collector",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "og-image.png",
+      "type": "image/png",
+      "sizes": "1200x630"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1c140d",
+  "background_color": "#1c140d"
+}

@@ -1,0 +1,9 @@
+[nix]
+channel = "stable-25_05"
+packages = ["unzip"]
+
+[agent]
+expertMode = true
+
+[objectStorage]
+defaultBucketID = "replit-objstore-36bb2214-0cf5-4de7-b3f5-7ab7d42ef26f"

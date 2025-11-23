@@ -1,0 +1,7 @@
+{
+  "name": "Poke Pals: Collect Your Friends Collector",
+  "description": "Turn your friends into collectible 3D monster cards using Gemini Nano Banana Pro. Capture, Transform, and Collect!",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

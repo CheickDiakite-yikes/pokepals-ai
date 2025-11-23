@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1200, height=630, initial-scale=1.0">
+    <title>Social Preview Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 1200px;
+            height: 630px;
+            background-color: #1c140d;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .grid-bg {
+            position: absolute;
+            bottom: 0;
+            width: 200%;
+            height: 80%;
+            background: 
+                linear-gradient(transparent 0%, rgba(217, 119, 6, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, transparent 0%, rgba(217, 119, 6, 0.2) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: bottom center;
+        }
+        .sun {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(to top, #f59e0b, #78350f);
+            border-radius: 50%;
+            position: absolute;
+            bottom: -100px;
+            filter: blur(40px);
+            opacity: 0.6;
+        }
+        .title {
+            font-size: 80px;
+            color: transparent;
+            background: linear-gradient(to bottom, #fde68a, #d97706);
+            -webkit-background-clip: text;
+            text-shadow: 6px 6px 0px #451a03;
+            z-index: 10;
+            margin-bottom: 20px;
+            letter-spacing: -4px;
+        }
+        .subtitle {
+            font-size: 24px;
+            color: #fcd34d;
+            letter-spacing: 8px;
+            text-shadow: 2px 2px 0px #78350f;
+            z-index: 10;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 30px;
+            border-radius: 8px;
+            border: 2px solid #92400e;
+        }
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sun"></div>
+    <div class="grid-bg"></div>
+    
+    <!-- Decorative Elements -->
+    <div style="position: absolute; top: 40px; left: 40px; width: 20px; height: 20px; background: #f59e0b; box-shadow: 4px 4px 0 #451a03;"></div>
+    <div style="position: absolute; top: 40px; right: 40px; width: 20px; height: 20px; background: #f59e0b; box-shadow: 4px 4px 0 #451a03;"></div>
+    <div style="position: absolute; bottom: 40px; left: 40px; width: 20px; height: 20px; background: #f59e0b; box-shadow: 4px 4px 0 #451a03;"></div>
+    <div style="position: absolute; bottom: 40px; right: 40px; width: 20px; height: 20px; background: #f59e0b; box-shadow: 4px 4px 0 #451a03;"></div>
+
+    <div class="title">POKEPALS</div>
+    <div class="subtitle">FRIEND COLLECTOR</div>
+
+    <div style="margin-top: 60px; z-index: 10; display: flex; gap: 20px;">
+        <div style="width: 100px; height: 140px; background: #2a1d12; border: 4px solid #d97706; border-radius: 8px; box-shadow: 0 0 20px rgba(217, 119, 6, 0.5);"></div>
+        <div style="width: 100px; height: 140px; background: #2a1d12; border: 4px solid #f59e0b; border-radius: 8px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); transform: translateY(-20px);"></div>
+        <div style="width: 100px; height: 140px; background: #2a1d12; border: 4px solid #b45309; border-radius: 8px; box-shadow: 0 0 20px rgba(180, 83, 9, 0.5);"></div>
+    </div>
+
+    <div class="scan-line"></div>
+</body>
+</html>
