@@ -77,9 +77,13 @@ const App: React.FC = () => {
     
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
-    const [feed, setFeed] = useState<Array<FriendCard & { user: string, likes: number }>>([]);
+    const [feed, setFeed] = useState<Array<FriendCard & { user: string; userId: string; likes: number }>>([]);
     const [likedCardIds, setLikedCardIds] = useState<Set<string>>(new Set());
     const [exploreTab, setExploreTab] = useState<'feed' | 'likes'>('feed');
+
+    const [viewedUserId, setViewedUserId] = useState<string | null>(null);
+    const [viewedUserName, setViewedUserName] = useState<string>('');
+    const [viewedUserCards, setViewedUserCards] = useState<FriendCard[]>([]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -120,6 +124,42 @@ const App: React.FC = () => {
 
         initData();
     }, [isAuthenticated, authLoading, user]);
+
+    // Load public cards feed
+    useEffect(() => {
+        if (!isAuthenticated || state !== AppState.EXPLORE) return;
+        
+        const loadPublicFeed = async () => {
+            try {
+                const publicCards = await apiService.getPublicCards();
+                setFeed(publicCards);
+            } catch (e) {
+                console.error("Failed to load public feed", e);
+            }
+        };
+        
+        loadPublicFeed();
+    }, [isAuthenticated, state]);
+
+    const handleVisitUserProfile = async (userId: string, userName: string) => {
+        try {
+            setViewedUserId(userId);
+            setState(AppState.USER_PROFILE);
+            
+            // Fetch current user profile to get up-to-date trainer name
+            const [userProfile, cards] = await Promise.all([
+                apiService.getUserProfile(userId),
+                apiService.getUserPublicCards(userId)
+            ]);
+            
+            setViewedUserName(userProfile.trainerName);
+            setViewedUserCards(cards);
+        } catch (error) {
+            console.error("Failed to load user profile", error);
+            alert("Failed to load user profile");
+            setState(AppState.EXPLORE); // Return to explore on error
+        }
+    };
 
     const handleCloseTutorial = () => {
         localStorage.setItem('pokepals_tutorial_seen', 'true');
@@ -352,19 +392,10 @@ const App: React.FC = () => {
         return matchesSearch && matchesFilter;
     });
 
-    const userPublicItems = collection
-        .filter(c => c.isPublic)
-        .map(c => ({
-            ...c,
-            user: trainerProfile.name,
-            likes: 0
-        }));
-    
-    const globalFeed = [...userPublicItems, ...feed].sort((a, b) => b.timestamp - a.timestamp);
-
+    // Feed already includes all public cards from API (including user's own)
     const displayedFeed = exploreTab === 'feed' 
-        ? globalFeed 
-        : globalFeed.filter(card => likedCardIds.has(card.id));
+        ? feed 
+        : feed.filter(card => likedCardIds.has(card.id));
 
     const renderBottomNav = () => (
         <div className="fixed bottom-0 left-0 right-0 h-[90px] z-50 pointer-events-none">
@@ -768,6 +799,62 @@ const App: React.FC = () => {
                 </div>
             )}
 
+            {/* USER PROFILE PAGE */}
+            {state === AppState.USER_PROFILE && (
+                <div className="flex flex-col h-full z-10 bg-[#1c140d]/95 overflow-y-auto scrollbar-hide pb-32">
+                    <div className="p-4 pt-safe-top">
+                        <div className="flex items-center justify-between mb-6 w-full max-w-md mx-auto">
+                            <button
+                                onClick={() => setState(AppState.EXPLORE)}
+                                className="font-pixel text-[10px] bg-amber-700 hover:bg-amber-600 text-white px-3 py-2 rounded border-b-4 border-amber-900 active:border-b-0 active:translate-y-1 transition-all shadow-lg"
+                            >
+                                ← BACK
+                            </button>
+                            <h2 className="font-pixel text-xl text-amber-400 drop-shadow-[2px_2px_0_#000]">
+                                {viewedUserName.toUpperCase()}
+                            </h2>
+                            <div className="w-16"></div>
+                        </div>
+                        
+                        <div className="w-full max-w-md mx-auto bg-[#2a1d12] border-4 border-[#f59e0b] rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] p-6 mb-6">
+                            <div className="text-center">
+                                <div className="inline-block w-24 h-24 rounded-full border-4 border-amber-500 bg-[#1f150b] overflow-hidden mb-4 shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+                                    <div className="w-full h-full flex items-center justify-center text-amber-700">
+                                        <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 className="font-pixel text-lg text-amber-400 mb-2">{viewedUserName}</h3>
+                                <p className="font-mono text-xs text-amber-600">{viewedUserCards.length} PUBLIC CARDS</p>
+                            </div>
+                        </div>
+
+                        <div className="w-full max-w-md mx-auto">
+                            <h3 className="font-pixel text-sm text-amber-400 mb-4 px-2">PUBLIC COLLECTION</h3>
+                            {viewedUserCards.length === 0 ? (
+                                <div className="py-12 flex flex-col items-center justify-center text-center opacity-50 space-y-4">
+                                    <div className="font-pixel text-4xl text-[#453018]">EMPTY</div>
+                                    <p className="font-mono text-xs text-[#8a6a4b]">NO PUBLIC CARDS</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-8 w-full">
+                                    {viewedUserCards.map((card) => (
+                                        <div key={card.id} className="transform transition-all duration-300 hover:scale-105">
+                                            <Card3D 
+                                                image={card.pokemonImage} 
+                                                stats={card.stats} 
+                                                cardBackImage={card.cardBackImage}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* EXPLORE PAGE */}
             {state === AppState.EXPLORE && (
                  <div className="flex flex-col h-full z-10 bg-[#1c140d]/95">
@@ -794,7 +881,12 @@ const App: React.FC = () => {
                              <div key={card.id} className="w-full max-w-sm mx-auto bg-[#0f0803] border-2 border-[#453018] p-2 rounded shadow-[5px_5px_0_#000]">
                                 <div className="flex items-center justify-between mb-2 px-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-pixel text-yellow-500">{card.user}</span>
+                                        <button 
+                                            onClick={() => handleVisitUserProfile(card.userId, card.user)}
+                                            className="text-xs font-pixel text-yellow-500 hover:text-yellow-300 underline transition-colors"
+                                        >
+                                            {card.user}
+                                        </button>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button onClick={() => toggleLike(card.id)} className={`flex items-center gap-1 font-mono text-[10px] transition-colors ${likedCardIds.has(card.id) ? 'text-pink-500' : 'text-[#8a6a4b] hover:text-pink-400'}`}>

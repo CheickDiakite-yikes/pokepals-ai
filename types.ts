@@ -6,7 +6,8 @@ export enum AppState {
   RESULT = 'RESULT',
   DECK = 'DECK',
   PROFILE = 'PROFILE',
-  EXPLORE = 'EXPLORE'
+  EXPLORE = 'EXPLORE',
+  USER_PROFILE = 'USER_PROFILE'
 }
 
 export interface PokemonStats {

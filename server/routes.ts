@@ -127,25 +127,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const cards = await storage.getAllPublicCards();
       
-      // Transform database format to frontend format
-      const frontendCards = cards.map(card => ({
-        id: card.id,
-        originalImage: card.originalImageUrl || '',
-        pokemonImage: card.pokemonImageUrl,
-        cardBackImage: card.cardBackImageUrl || '',
-        stats: {
-          name: card.name,
-          type: card.type,
-          hp: card.hp,
-          attack: card.attack,
-          defense: card.defense,
-          description: card.description,
-          moves: card.moves,
-          weakness: card.weakness,
-          rarity: card.rarity,
-        },
-        timestamp: new Date(card.timestamp).getTime(),
-        isPublic: card.isPublic,
+      // Get user info for each card
+      const frontendCards = await Promise.all(cards.map(async (card) => {
+        const user = await storage.getUser(card.userId);
+        return {
+          id: card.id,
+          originalImage: card.originalImageUrl || '',
+          pokemonImage: card.pokemonImageUrl,
+          cardBackImage: card.cardBackImageUrl || '',
+          stats: {
+            name: card.name,
+            type: card.type,
+            hp: card.hp,
+            attack: card.attack,
+            defense: card.defense,
+            description: card.description,
+            moves: card.moves,
+            weakness: card.weakness,
+            rarity: card.rarity,
+          },
+          timestamp: new Date(card.timestamp).getTime(),
+          isPublic: card.isPublic,
+          userId: card.userId,
+          user: user?.trainerName || 'Unknown Trainer',
+          likes: 0,
+        };
       }));
       
       res.json(frontendCards);
@@ -173,6 +179,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting card:", error);
       res.status(500).json({ message: "Failed to delete card" });
+    }
+  });
+
+  // User profile routes
+  app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({ 
+        id: user.id, 
+        trainerName: user.trainerName || 'Unknown Trainer' 
+      });
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      res.status(500).json({ message: 'Failed to fetch user profile' });
+    }
+  });
+
+  app.get('/api/users/:userId/cards', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const cards = await storage.getUserPublicCards(userId);
+      
+      // Transform database format to frontend format
+      const frontendCards = cards.map(card => ({
+        id: card.id,
+        originalImage: card.originalImageUrl || '',
+        pokemonImage: card.pokemonImageUrl,
+        cardBackImage: card.cardBackImageUrl || '',
+        stats: {
+          name: card.name,
+          type: card.type,
+          hp: card.hp,
+          attack: card.attack,
+          defense: card.defense,
+          description: card.description,
+          moves: card.moves,
+          weakness: card.weakness,
+          rarity: card.rarity,
+        },
+        timestamp: new Date(card.timestamp).getTime(),
+        isPublic: card.isPublic,
+      }));
+      
+      res.json(frontendCards);
+    } catch (error) {
+      console.error('Error fetching user cards:', error);
+      res.status(500).json({ message: 'Failed to fetch user cards' });
     }
   });
 

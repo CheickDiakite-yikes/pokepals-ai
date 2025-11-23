@@ -142,4 +142,28 @@ export const apiService = {
   getObjectUrl(objectPath: string): string {
     return `${API_BASE}${objectPath}`;
   },
+
+  async getUserProfile(userId: string): Promise<{ id: string; trainerName: string }> {
+    const res = await fetch(`${API_BASE}/api/users/${userId}`, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to fetch user profile');
+    return await res.json();
+  },
+
+  async getUserPublicCards(userId: string): Promise<FriendCard[]> {
+    const res = await fetch(`${API_BASE}/api/users/${userId}/cards`, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to fetch user cards');
+    return await res.json();
+  },
+
+  async getPublicCards(): Promise<Array<FriendCard & { user: string; userId: string; likes: number }>> {
+    const res = await fetch(`${API_BASE}/api/cards/public`, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to fetch public cards');
+    return await res.json();
+  },
 };
