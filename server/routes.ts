@@ -30,8 +30,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
+      const { timestamp, ...cardFields } = req.body;
       const cardData = {
-        ...req.body,
+        ...cardFields,
         userId,
         id: Date.now().toString(),
       };
