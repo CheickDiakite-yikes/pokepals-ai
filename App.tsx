@@ -289,12 +289,14 @@ const App: React.FC = () => {
         e.stopPropagation();
         const cardToUpdate = collection.find(c => c.id === id);
         if (cardToUpdate) {
-            const updatedCard = { ...cardToUpdate, isPublic: !cardToUpdate.isPublic };
+            const newIsPublic = !cardToUpdate.isPublic;
+            const updatedCard = { ...cardToUpdate, isPublic: newIsPublic };
             try {
-                await saveCardToDB(updatedCard);
+                await apiService.updateCard(id, { isPublic: newIsPublic });
                 setCollection(prev => prev.map(c => c.id === id ? updatedCard : c));
             } catch (err) {
                 console.error("Update failed", err);
+                alert("Failed to update card. Please try again.");
             }
         }
     };

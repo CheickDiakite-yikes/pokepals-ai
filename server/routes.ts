@@ -182,6 +182,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/cards/:id', isAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.session.userId!;
+      const cardId = req.params.id;
+      const { isPublic } = req.body;
+      
+      // Validate isPublic is a boolean
+      if (typeof isPublic !== 'boolean') {
+        return res.status(400).json({ message: "isPublic must be a boolean" });
+      }
+      
+      // Verify card exists and belongs to user
+      const userCards = await storage.getUserCards(userId);
+      const card = userCards.find(c => c.id === cardId);
+      
+      if (!card) {
+        return res.status(404).json({ message: "Card not found or access denied" });
+      }
+      
+      await storage.updateCardPublicStatus(cardId, userId, isPublic);
+      res.json({ success: true, isPublic });
+    } catch (error) {
+      console.error("Error updating card:", error);
+      res.status(500).json({ message: "Failed to update card" });
+    }
+  });
+
   // User profile routes
   app.get('/api/users/:userId', async (req, res) => {
     try {

@@ -23,6 +23,7 @@ export interface IStorage {
   getAllPublicCards(): Promise<Card[]>;
   getUserPublicCards(userId: string): Promise<Card[]>;
   deleteCard(cardId: string, userId: string): Promise<void>;
+  updateCardPublicStatus(cardId: string, userId: string, isPublic: boolean): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -101,6 +102,13 @@ export class DatabaseStorage implements IStorage {
   async deleteCard(cardId: string, userId: string): Promise<void> {
     await db
       .delete(cards)
+      .where(and(eq(cards.id, cardId), eq(cards.userId, userId)));
+  }
+
+  async updateCardPublicStatus(cardId: string, userId: string, isPublic: boolean): Promise<void> {
+    await db
+      .update(cards)
+      .set({ isPublic })
       .where(and(eq(cards.id, cardId), eq(cards.userId, userId)));
   }
 }

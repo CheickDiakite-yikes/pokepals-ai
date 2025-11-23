@@ -106,6 +106,16 @@ export const apiService = {
     if (!res.ok) throw new Error('Failed to delete card');
   },
 
+  async updateCard(id: string, updates: { isPublic: boolean }): Promise<void> {
+    const res = await fetch(`${API_BASE}/api/cards/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Failed to update card');
+  },
+
   async uploadImage(base64Image: string): Promise<string> {
     const blob = await (await fetch(base64Image)).blob();
     
