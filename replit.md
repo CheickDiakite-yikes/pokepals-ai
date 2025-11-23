@@ -26,6 +26,14 @@ Preferred communication style: Simple, everyday language.
 - **Explore Page**: Removed hardcoded placeholder cards (Cyber Squirrel, Tech Guru, Sara Snaps, Vortex Viper)
   - Explore feed now shows only real user-created public cards
   - Clean, production-ready explore experience
+- **User Profile Visiting Feature**: Added ability to visit other users' profiles from explore page
+  - Clickable usernames in explore feed navigate to user profile view
+  - New backend endpoints: GET /api/users/:userId and GET /api/users/:userId/cards
+  - Updated GET /api/cards/public to include userId and trainer name with each card
+  - User profile view displays trainer name and their public card collection
+  - Fresh profile data fetched from API to prevent stale trainer names after renames
+  - Back button navigation returns to explore feed
+  - New AppState.USER_PROFILE for viewing other users' profiles
 - Production-ready authentication and card storage
 
 # System Architecture
@@ -34,7 +42,7 @@ Preferred communication style: Simple, everyday language.
 
 **Technology Stack**: React 19 with TypeScript, Vite build system, TailwindCSS for styling, and custom 3D CSS transforms for card flip animations.
 
-**State Management**: Component-level state using React hooks (useState, useEffect, useRef). Application flow controlled via AppState enum (LANDING, CAMERA, PROCESSING, RESULT, DECK, PROFILE, EXPLORE).
+**State Management**: Component-level state using React hooks (useState, useEffect, useRef). Application flow controlled via AppState enum (LANDING, CAMERA, PROCESSING, RESULT, DECK, PROFILE, EXPLORE, USER_PROFILE).
 
 **Key Design Decisions**:
 - **Single Page Application**: All interactions happen within one page with conditional rendering based on AppState
