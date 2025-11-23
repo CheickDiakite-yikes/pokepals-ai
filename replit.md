@@ -1,0 +1,103 @@
+# Overview
+
+POKEPALS is a retro-themed web application that transforms photos of friends into collectible 3D monster trading cards. Users can capture photos via camera, which are then analyzed and transformed into unique cards with AI-generated stats, artwork, and abilities. The app features a social component where users can explore and like cards created by others, building their own deck of transformed friend cards.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# System Architecture
+
+## Frontend Architecture
+
+**Technology Stack**: React 19 with TypeScript, Vite build system, TailwindCSS for styling, and custom 3D CSS transforms for card flip animations.
+
+**State Management**: Component-level state using React hooks (useState, useEffect, useRef). Application flow controlled via AppState enum (LANDING, CAMERA, PROCESSING, RESULT, DECK, PROFILE, EXPLORE).
+
+**Key Design Decisions**:
+- **Single Page Application**: All interactions happen within one page with conditional rendering based on AppState
+- **Progressive Web App**: Configured with manifest.json for installability and offline-first capabilities
+- **Camera Integration**: Direct browser MediaStream API usage for photo capture with quality fallbacks (1080p ideal → basic constraints)
+- **3D Card Rendering**: CSS 3D transforms with perspective for flip animations, rarity-based glow effects using box shadows
+- **Audio Feedback**: Web Audio API generates retro 8-bit sounds procedurally (no audio files), including capture, save, and flip sounds
+
+**Component Structure**:
+- `CameraCapture`: Handles camera access and photo capture with quality negotiation
+- `Card3D`: Renders flippable trading cards with front/back states and rarity-based visual effects
+- `AuthForm`: Toggle between login/signup modes with validation
+
+## Backend Architecture
+
+**Technology Stack**: Express.js server with TypeScript, session-based authentication using bcrypt password hashing.
+
+**Authentication Flow**: 
+- Session management via `express-session` with PostgreSQL session store (`connect-pg-simple`)
+- Password-based auth with bcrypt (12 rounds) 
+- Session persistence across requests with HTTP-only cookies
+- Trust proxy configuration for deployment compatibility
+
+**API Design**:
+- RESTful endpoints under `/api` prefix
+- Authentication middleware (`isAuthenticated`) protects user-specific routes
+- Card CRUD operations scoped to authenticated user
+- Profile management separate from card operations
+
+**Key Architectural Choices**:
+- **Session-based auth over JWT**: Chosen for better security (server-side revocation) and simpler implementation
+- **Request size limits**: 50MB JSON/URL-encoded bodies to support base64-encoded images
+- **CORS configuration**: Credential support enabled for cross-origin authenticated requests
+
+## Data Storage
+
+**Database**: PostgreSQL accessed via Drizzle ORM with Neon serverless driver for connection pooling.
+
+**Schema Design** (shared/schema.ts):
+- `users`: Stores email, password hash, trainer name, profile images (URLs), timestamps
+- `cards`: Stores card metadata (stats, images as URLs), references user via foreign key, includes privacy flag (isPublic)
+- `sessions`: Managed by connect-pg-simple for Express session persistence
+
+**Data Access Layer** (server/storage.ts):
+- Interface-based design (`IStorage`) allows for potential storage backend swaps
+- `DatabaseStorage` implementation provides user and card CRUD operations
+- Operations scoped by userId to enforce data isolation
+
+**Migration Strategy**:
+- Function `migrateFromLocalStorage` in dbService.ts suggests original IndexedDB storage with migration path to PostgreSQL
+- IndexedDB code preserved for offline-first capabilities or fallback scenarios
+
+**Image Storage Strategy**:
+- Base64 encoding for client-side storage and transfer
+- Server expects URLs (suggests Google Cloud Storage integration for production via `@google-cloud/storage`)
+- Object storage service (`server/objectStorage.ts`) implements ACL-based access control for uploaded images
+
+## External Dependencies
+
+**AI/ML Services**:
+- **Google Gemini API** (`@google/genai`): Primary AI service for two distinct tasks:
+  1. Image analysis → generates card stats (name, type, HP, attack, defense, moves, rarity) based on photo content scoring rubric
+  2. Image generation → creates stylized Pokemon-like character art from original photo
+- API key management supports both environment variables and AI Studio key selection UI
+- Rarity determination uses 100-point scoring system (environment, subject, vibe, extras)
+
+**Cloud Services**:
+- **Google Cloud Storage** (`@google-cloud/storage`): Object storage for card images and user uploads
+- **Replit Sidecar**: External account authentication for GCS using Replit-specific token endpoint
+- **Neon Database** (`@neondatabase/serverless`): Serverless PostgreSQL with WebSocket support for connection pooling
+
+**Authentication Integrations**:
+- **OpenID Connect** (`openid-client`): Configured for optional Replit OAuth authentication
+- **Passport.js**: Authentication middleware framework (configured but appears unused in main flow)
+- Dual auth strategy: Custom password-based (active) + Replit OIDC (configured, dormant)
+
+**File Upload** (configured but not actively used):
+- **Uppy** (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`): File upload UI components
+- Suggests future feature for direct image uploads vs. camera-only capture
+
+**Development Tools**:
+- **Drizzle Kit**: Database schema management and migrations
+- **TSX**: TypeScript execution for server hot-reloading during development
+- **Vite**: Frontend build tool with React plugin, proxy configuration for API routes
+
+**Notable Libraries**:
+- **Memoizee**: Caching for OIDC configuration (1-hour TTL)
+- **WS**: WebSocket library for Neon database connections
