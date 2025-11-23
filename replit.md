@@ -40,6 +40,13 @@ Preferred communication style: Simple, everyday language.
   - Front camera view is mirrored for natural selfie experience
   - Back camera view is not mirrored for accurate photo capture
   - Smooth camera transition when switching modes
+- **Social Media Share Preview**: Created on-brand Open Graph image and metadata
+  - AI-generated retro gaming social banner (1792x1008px) in public/og-image.png
+  - Comprehensive Open Graph meta tags for Facebook, Instagram, LinkedIn
+  - Twitter/X card support with large image preview
+  - WhatsApp-compatible metadata
+  - Image dimensions and alt text specified for optimal sharing
+  - Relative paths for deployment flexibility
 - Production-ready authentication and card storage
 
 # System Architecture
