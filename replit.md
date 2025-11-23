@@ -19,6 +19,13 @@ Preferred communication style: Simple, everyday language.
   - Eliminates blocking PROCESSING state, cards save and display immediately
   - App functional with simplified storage architecture
 - Added sign-out functionality to profile page with proper useAuth hook integration
+- **Code Cleanup**: Removed all unused object storage code
+  - Deleted `/objects/*`, `/api/objects/upload`, and `/api/cards/image` routes from routes.ts
+  - Removed unused imports: ObjectStorageService, ObjectNotFoundError, ObjectPermission
+  - Fixed all LSP TypeScript errors
+- **Explore Page**: Removed hardcoded placeholder cards (Cyber Squirrel, Tech Guru, Sara Snaps, Vortex Viper)
+  - Explore feed now shows only real user-created public cards
+  - Clean, production-ready explore experience
 - Production-ready authentication and card storage
 
 # System Architecture

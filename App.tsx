@@ -10,66 +10,6 @@ import CameraCapture from './components/CameraCapture';
 import Card3D from './components/Card3D';
 import { AuthForm } from './components/AuthForm';
 
-// --- MOCK DATA FOR EXPLORE PAGE ---
-const INITIAL_MOCK_FEED: Array<FriendCard & { user: string, likes: number }> = [
-    {
-        id: 'mock1',
-        user: 'NeonNinja_99',
-        likes: 1240,
-        originalImage: '', 
-        pokemonImage: 'https://placehold.co/600x800/1e1b4b/a5b4fc?text=Vortex+Viper',
-        timestamp: Date.now() - 100000,
-        stats: {
-            name: "Vortex Viper",
-            type: "Cosmic",
-            hp: 120,
-            attack: 95,
-            defense: 60,
-            description: "Born from a collapsing star, this entity weaves through dimensions.",
-            moves: ["Star Dust", "Void Bite"],
-            weakness: "Light",
-            rarity: "Exotic"
-        }
-    },
-    {
-        id: 'mock2',
-        user: 'SarahSnaps',
-        likes: 856,
-        originalImage: '',
-        pokemonImage: 'https://placehold.co/600x800/064e3b/6ee7b7?text=Bloom+Guardian',
-        timestamp: Date.now() - 200000,
-        stats: {
-            name: "Bloom Guardian",
-            type: "Nature",
-            hp: 150,
-            attack: 40,
-            defense: 100,
-            description: "A gentle giant that protects ancient forests from digital decay.",
-            moves: ["Root Wall", "Solar Beam"],
-            weakness: "Fire",
-            rarity: "Legendary"
-        }
-    },
-    {
-        id: 'mock3',
-        user: 'Tech_Guru',
-        likes: 432,
-        originalImage: '',
-        pokemonImage: 'https://placehold.co/600x800/312e81/818cf8?text=Cyber+Squirrel',
-        timestamp: Date.now() - 300000,
-        stats: {
-            name: "Cyber Squirrel",
-            type: "Digital",
-            hp: 60,
-            attack: 70,
-            defense: 30,
-            description: "Feeds on fiber optic cables and hoards data packets.",
-            moves: ["Glitch Claw", "Byte Bite"],
-            weakness: "Water",
-            rarity: "Rare"
-        }
-    }
-];
 
 const TutorialOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
@@ -137,7 +77,7 @@ const App: React.FC = () => {
     
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
-    const [feed, setFeed] = useState(INITIAL_MOCK_FEED);
+    const [feed, setFeed] = useState<Array<FriendCard & { user: string, likes: number }>>([]);
     const [likedCardIds, setLikedCardIds] = useState<Set<string>>(new Set());
     const [exploreTab, setExploreTab] = useState<'feed' | 'likes'>('feed');
 
