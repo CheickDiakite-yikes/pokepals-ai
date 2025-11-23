@@ -24,12 +24,40 @@ export const apiService = {
     }
   },
 
-  async login() {
-    window.location.href = `${API_BASE}/api/login`;
+  async signup(email: string, password: string, trainerName?: string): Promise<AuthUser> {
+    const res = await fetch(`${API_BASE}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password, trainerName }),
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Signup failed');
+    }
+    return await res.json();
   },
 
-  async logout() {
-    window.location.href = `${API_BASE}/api/logout`;
+  async login(email: string, password: string): Promise<AuthUser> {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Login failed');
+    }
+    return await res.json();
+  },
+
+  async logout(): Promise<void> {
+    const res = await fetch(`${API_BASE}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Logout failed');
   },
 
   async updateProfile(trainerName: string): Promise<AuthUser> {

@@ -8,6 +8,7 @@ import { apiService } from './services/apiService';
 import { useAuth } from './hooks/useAuth';
 import CameraCapture from './components/CameraCapture';
 import Card3D from './components/Card3D';
+import { AuthForm } from './components/AuthForm';
 
 // --- MOCK DATA FOR EXPLORE PAGE ---
 const INITIAL_MOCK_FEED: Array<FriendCard & { user: string, likes: number }> = [
@@ -121,7 +122,7 @@ const TutorialOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 const App: React.FC = () => {
-    const { user, loading: authLoading, isAuthenticated, login } = useAuth();
+    const { user, loading: authLoading, isAuthenticated, login, signup } = useAuth();
     
     const [state, setState] = useState<AppState>(AppState.LANDING);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -485,7 +486,7 @@ const App: React.FC = () => {
     // Show login screen if not authenticated
     if (!isAuthenticated) {
         return (
-            <div className="h-[100dvh] w-full bg-[#1c140d] flex flex-col items-center justify-center text-amber-400 font-fredoka relative">
+            <div className="h-[100dvh] w-full bg-[#1c140d] flex flex-col items-center justify-center text-amber-400 font-fredoka relative overflow-auto">
                 <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                     <div className="absolute bottom-0 w-[200%] h-[60%] bg-[linear-gradient(transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px),_linear-gradient(90deg,transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] animate-grid-move origin-bottom opacity-100"></div>
                     <div className="absolute inset-0 opacity-40">
@@ -498,25 +499,17 @@ const App: React.FC = () => {
                         ))}
                     </div>
                 </div>
-                <div className="z-10 flex flex-col items-center space-y-12 p-6 text-center w-full max-w-lg">
+                <div className="z-10 flex flex-col items-center space-y-8 p-6 text-center w-full max-w-lg my-auto">
                     <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-gradient-to-b from-yellow-200 via-amber-500 to-amber-900 blur-2xl opacity-40 z-[-1]"></div>
                     <div className="relative animate-float">
-                        <h1 className="font-pixel text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-amber-600 drop-shadow-[4px_4px_0_#451a03] tracking-widest leading-tight">
+                        <h1 className="font-pixel text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-amber-600 drop-shadow-[4px_4px_0_#451a03] tracking-widest leading-tight">
                             POKEPALS
                         </h1>
                         <p className="font-pixel text-[8px] md:text-[10px] text-amber-200 tracking-[0.4em] uppercase mt-4 text-glow">
                             Insert Coin to Collect Friends
                         </p>
                     </div>
-                    <div className="space-y-4">
-                        <p className="font-mono text-xs text-amber-300">Please sign in to continue</p>
-                        <div className="relative group cursor-pointer" onClick={login}>
-                            <div className="absolute -inset-2 bg-red-600 rounded-lg blur-lg opacity-30 group-hover:opacity-60 transition-opacity animate-pulse"></div>
-                            <button className="relative px-12 py-5 bg-[#b91c1c] text-white font-pixel text-xs rounded border-b-8 border-[#7f1d1d] active:border-b-0 active:translate-y-2 transition-all flex items-center gap-3 group-hover:brightness-110">
-                                <span className="animate-blink">▶</span> SIGN IN WITH REPLIT
-                            </button>
-                        </div>
-                    </div>
+                    <AuthForm onLogin={login} onSignup={signup} />
                     <p className="font-mono text-[8px] text-amber-700">V2.5.0 - NANO BANANA BUILD</p>
                 </div>
             </div>

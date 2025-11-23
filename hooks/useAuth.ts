@@ -24,12 +24,36 @@ export function useAuth() {
     }
   };
 
-  const login = () => {
-    apiService.login();
+  const login = async (email: string, password: string) => {
+    try {
+      const user = await apiService.login(email, password);
+      setUser(user);
+      setIsAuthenticated(true);
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
   };
 
-  const logout = () => {
-    apiService.logout();
+  const signup = async (email: string, password: string, trainerName?: string) => {
+    try {
+      const user = await apiService.signup(email, password, trainerName);
+      setUser(user);
+      setIsAuthenticated(true);
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await apiService.logout();
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return {
@@ -37,6 +61,7 @@ export function useAuth() {
     loading,
     isAuthenticated,
     login,
+    signup,
     logout,
     refetchUser: checkAuth,
   };

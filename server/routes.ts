@@ -1,30 +1,48 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { signup, login, logout, isAuthenticated, getCurrentUser, type AuthRequest } from "./auth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Trust proxy (required for Replit)
+  app.set('trust proxy', 1);
+
+  // Session setup
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: false,
+    ttl: sessionTtl,
+    tableName: "sessions",
+  });
+  
+  app.use(session({
+    secret: process.env.SESSION_SECRET!,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: sessionTtl,
+    },
+  }));
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  app.post('/api/auth/signup', signup);
+  app.post('/api/auth/login', login);
+  app.post('/api/auth/logout', logout);
+  app.get('/api/auth/user', getCurrentUser);
 
   // Update trainer name
-  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/profile', isAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId!;
       const { trainerName } = req.body;
       await storage.updateTrainerName(userId, trainerName);
       const user = await storage.getUser(userId);
@@ -36,9 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Card routes
-  app.post('/api/cards', isAuthenticated, async (req: any, res) => {
+  app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId!;
       const cardData = {
         ...req.body,
         userId,
@@ -52,9 +70,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/cards', isAuthenticated, async (req: any, res) => {
+  app.get('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId!;
       const cards = await storage.getUserCards(userId);
       res.json(cards);
     } catch (error) {
@@ -73,9 +91,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/cards/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/cards/:id', isAuthenticated, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.session.userId!;
       await storage.deleteCard(req.params.id, userId);
       res.json({ success: true });
     } catch (error) {
@@ -85,8 +103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Object storage routes - using req.params[0] to capture wildcard path
-  app.use("/objects", isAuthenticated, async (req: any, res) => {
-    const userId = req.user?.claims?.sub;
+  app.use("/objects", isAuthenticated, async (req: AuthRequest, res) => {
+    const userId = req.session.userId!;
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
@@ -108,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/objects/upload", isAuthenticated, async (req: any, res) => {
+  app.post("/api/objects/upload", isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -121,12 +139,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/cards/image", isAuthenticated, async (req: any, res) => {
+  app.put("/api/cards/image", isAuthenticated, async (req: AuthRequest, res) => {
     if (!req.body.imageURL) {
       return res.status(400).json({ error: "imageURL is required" });
     }
 
-    const userId = req.user?.claims?.sub;
+    const userId = req.session.userId!;
 
     try {
       const objectStorageService = new ObjectStorageService();
