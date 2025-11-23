@@ -47,6 +47,14 @@ Preferred communication style: Simple, everyday language.
   - WhatsApp-compatible metadata
   - Image dimensions and alt text specified for optimal sharing
   - Relative paths for deployment flexibility
+- **Public Cards Persistence Fix**: Fixed bug where public cards disappeared after refresh
+  - Added PATCH /api/cards/:id endpoint with validation for updating isPublic status
+  - Implemented updateCardPublicStatus in storage layer with database persistence
+  - Updated frontend to use API instead of IndexedDB for togglePublic
+  - Public cards now persist in PostgreSQL and appear correctly in profile/explore pages
+- **Deployment Configuration**: Configured Autoscale deployment
+  - Run command: `npm run server & npm run dev` for both backend and frontend
+  - Ready for production deployment
 - Production-ready authentication and card storage
 
 # System Architecture
