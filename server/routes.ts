@@ -1,38 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import session from "express-session";
-import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { signup, login, logout, isAuthenticated, getCurrentUser, type AuthRequest } from "./auth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Trust proxy (required for Replit)
-  app.set('trust proxy', 1);
-
-  // Session setup
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
-  
-  app.use(session({
-    secret: process.env.SESSION_SECRET!,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: sessionTtl,
-    },
-  }));
-
   // Auth routes
   app.post('/api/auth/signup', signup);
   app.post('/api/auth/login', login);
@@ -94,7 +67,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/cards/:id', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
-      await storage.deleteCard(req.params.id, userId);
+      const cardId = req.params.id;
+      
+      // Verify card exists and belongs to user
+      const userCards = await storage.getUserCards(userId);
+      const cardExists = userCards.some(card => card.id === cardId);
+      
+      if (!cardExists) {
+        return res.status(404).json({ message: "Card not found or access denied" });
+      }
+      
+      await storage.deleteCard(cardId, userId);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting card:", error);

@@ -7,7 +7,7 @@ import {
   type Card,
 } from "../shared/schema.js";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -92,7 +92,7 @@ export class DatabaseStorage implements IStorage {
   async deleteCard(cardId: string, userId: string): Promise<void> {
     await db
       .delete(cards)
-      .where(eq(cards.id, cardId));
+      .where(and(eq(cards.id, cardId), eq(cards.userId, userId)));
   }
 }
 
