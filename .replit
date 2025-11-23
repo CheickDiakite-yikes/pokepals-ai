@@ -15,6 +15,9 @@ defaultBucketID = "replit-objstore-36bb2214-0cf5-4de7-b3f5-7ab7d42ef26f"
 [userenv.shared]
 PRIVATE_OBJECT_DIR = "/replit-objstore-36bb2214-0cf5-4de7-b3f5-7ab7d42ef26f"
 
+[userenv.production]
+NODE_ENV = "production"
+
 [workflows]
 runButton = "Project"
 
@@ -62,10 +65,6 @@ externalPort = 3001
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 36597
-externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"

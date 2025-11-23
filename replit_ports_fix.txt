@@ -1,0 +1,11 @@
+IMPORTANT: Port Configuration Fix for Deployment
+
+The .replit file needs to be manually updated to reorder ports.
+Current configuration has port 3001 first, but production needs port 5000 first.
+
+Required change in .replit file:
+1. Move the port 5000 configuration to be FIRST in the [[ports]] section
+2. Keep port 3001 configuration second (for development)
+
+This is because Autoscale Deployments expect the application to listen on 
+the FIRST localPort configured, and your production server uses port 5000.
