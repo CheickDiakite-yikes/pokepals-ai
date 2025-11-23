@@ -14,6 +14,7 @@
     "@google-cloud/storage": "^7.17.3",
     "@google/genai": "^1.30.0",
     "@neondatabase/serverless": "^1.0.2",
+    "@replit/object-storage": "^1.0.0",
     "@types/bcrypt": "^6.0.0",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/cors": "^2.8.19",

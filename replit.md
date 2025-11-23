@@ -82,9 +82,10 @@ Preferred communication style: Simple, everyday language.
 - IndexedDB code preserved for offline-first capabilities or fallback scenarios
 
 **Image Storage Strategy**:
-- Base64 encoding for client-side storage and transfer
-- Server expects URLs (suggests Google Cloud Storage integration for production via `@google-cloud/storage`)
-- Object storage service (`server/objectStorage.ts`) implements ACL-based access control for uploaded images
+- **Current Implementation**: Base64 images stored directly in PostgreSQL database
+- Cards save and display using `data:image/png;base64,...` format
+- No external object storage required (simplified architecture)
+- Object storage service (`server/objectStorage.ts`) present but unused in current flow
 
 ## External Dependencies
 
