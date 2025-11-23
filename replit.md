@@ -52,9 +52,14 @@ Preferred communication style: Simple, everyday language.
   - Implemented updateCardPublicStatus in storage layer with database persistence
   - Updated frontend to use API instead of IndexedDB for togglePublic
   - Public cards now persist in PostgreSQL and appear correctly in profile/explore pages
-- **Deployment Configuration**: Configured Autoscale deployment
-  - Run command: `npm run server & npm run dev` for both backend and frontend
-  - Ready for production deployment
+- **Deployment Configuration**: Configured Autoscale deployment for production
+  - Build command: `npm run build` - Creates optimized production assets with Vite
+  - Run command: `npm run server:prod` - Runs production server (no watch mode)
+  - Production server serves both API (backend) and static files (frontend) on port 5000
+  - Static file serving from dist/ directory in production mode
+  - SPA catch-all route serves index.html for all non-API routes
+  - Automatic environment detection via NODE_ENV
+  - SESSION_SECRET configured as secret for production
 - Production-ready authentication and card storage
 
 # System Architecture
