@@ -354,6 +354,16 @@ const App: React.FC = () => {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await apiService.logout();
+            setIsAuthenticated(false);
+            setState(AppState.LANDING);
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
     const calculateLevelAndXP = () => {
         let totalXP = 0;
         collection.forEach(card => {
@@ -641,7 +651,15 @@ const App: React.FC = () => {
             {state === AppState.PROFILE && (
                 <div className="flex flex-col h-full z-10 bg-[#1c140d]/95 overflow-y-auto scrollbar-hide pb-32">
                     <div className="p-4 pt-safe-top">
-                        <h2 className="font-pixel text-xl text-amber-400 mb-6 text-center drop-shadow-[2px_2px_0_#000]">TRAINER PASSPORT</h2>
+                        <div className="flex items-center justify-between mb-6 w-full max-w-md mx-auto">
+                            <h2 className="font-pixel text-xl text-amber-400 drop-shadow-[2px_2px_0_#000]">TRAINER PASSPORT</h2>
+                            <button
+                                onClick={handleLogout}
+                                className="font-pixel text-[10px] bg-red-700 hover:bg-red-600 text-white px-3 py-2 rounded border-b-4 border-red-900 active:border-b-0 active:translate-y-1 transition-all shadow-lg"
+                            >
+                                SIGN OUT
+                            </button>
+                        </div>
                         
                         <div className="w-full max-w-md mx-auto bg-[#2a1d12] border-4 border-[#f59e0b] rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.2)] p-6 relative overflow-hidden">
                              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(245,158,11,0.05)_25%,rgba(245,158,11,0.05)_50%,transparent_50%,transparent_75%,rgba(245,158,11,0.05)_75%,rgba(245,158,11,0.05)_100%)] bg-[size:20px_20px] pointer-events-none"></div>
