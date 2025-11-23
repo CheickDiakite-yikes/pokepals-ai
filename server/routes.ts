@@ -268,6 +268,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SPA catch-all route for production (must be last)
+  // Serves index.html for all non-API routes
+  if (process.env.NODE_ENV === 'production') {
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
+  }
+
   const httpServer = createServer(app);
   return httpServer;
 }

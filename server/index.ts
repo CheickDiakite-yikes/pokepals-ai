@@ -2,9 +2,15 @@ import express from "express";
 import cors from "cors";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import path from "path";
+import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Trust proxy (required for Replit)
 app.set('trust proxy', 1);
@@ -34,17 +40,23 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProduction,
     maxAge: sessionTtl,
   },
 }));
 
+// Serve static files in production
+if (isProduction) {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+}
+
 async function startServer() {
   const server = await registerRoutes(app);
-  const port = 3001;
+  const port = isProduction ? 5000 : 3001;
   
   server.listen(port, '0.0.0.0', () => {
-    console.log(`Backend server running on port ${port}`);
+    console.log(`${isProduction ? 'Production' : 'Backend'} server running on port ${port}`);
   });
 }
 

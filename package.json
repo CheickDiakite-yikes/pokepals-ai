@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "tsx --watch server/index.ts",
+    "server:prod": "tsx server/index.ts",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
