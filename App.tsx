@@ -4,6 +4,8 @@ import { AppState, FriendCard, PokemonStats, ImageSize, TrainerProfile } from '.
 import { generateCardFront, generateCardStats, generateCardBack, checkAndRequestApiKey } from './services/geminiService';
 import { playSaveSound } from './services/audioService';
 import { saveCardToDB, getAllCardsFromDB, deleteCardFromDB, saveProfileToDB, getProfileFromDB, migrateFromLocalStorage } from './services/dbService';
+import { apiService } from './services/apiService';
+import { useAuth } from './hooks/useAuth';
 import CameraCapture from './components/CameraCapture';
 import Card3D from './components/Card3D';
 
@@ -119,6 +121,8 @@ const TutorialOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 const App: React.FC = () => {
+    const { user, loading: authLoading, isAuthenticated, login } = useAuth();
+    
     const [state, setState] = useState<AppState>(AppState.LANDING);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const [generatedCard, setGeneratedCard] = useState<FriendCard | null>(null);
@@ -139,29 +143,32 @@ const App: React.FC = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Initial Data Load (Async from IndexedDB)
+    // Initial Data Load
     useEffect(() => {
+        if (!isAuthenticated || authLoading) return;
+        
         const initData = async () => {
-            // 1. Try migration (one-off)
-            await migrateFromLocalStorage();
-            
-            // 2. Load Cards
+            // 1. Load Cards from backend
             try {
-                const dbCards = await getAllCardsFromDB();
-                setCollection(dbCards);
+                const cards = await apiService.getCards();
+                setCollection(cards);
             } catch (e) {
-                console.error("Failed to load cards from DB", e);
+                console.error("Failed to load cards from backend", e);
+                // Fallback to local IndexedDB if backend fails
+                try {
+                    const dbCards = await getAllCardsFromDB();
+                    setCollection(dbCards);
+                } catch (dbError) {
+                    console.error("Failed to load cards from local DB", dbError);
+                }
             }
 
-            // 3. Load Profile
-            try {
-                const dbProfile = await getProfileFromDB();
-                if (dbProfile) setTrainerProfile(dbProfile);
-            } catch (e) {
-                console.error("Failed to load profile from DB", e);
+            // 2. Load Profile from user data
+            if (user?.trainerName) {
+                setTrainerProfile({ name: user.trainerName });
             }
 
-            // 4. Load Likes (small data, keeping in localStorage for simplicity as it's just IDs)
+            // 3. Load Likes (small data, keeping in localStorage for simplicity as it's just IDs)
             const savedLikes = localStorage.getItem('pokepals_likes');
             if (savedLikes) {
                 try {
@@ -171,7 +178,7 @@ const App: React.FC = () => {
         };
 
         initData();
-    }, []);
+    }, [isAuthenticated, authLoading, user]);
 
     const handleCloseTutorial = () => {
         localStorage.setItem('pokepals_tutorial_seen', 'true');
@@ -243,15 +250,35 @@ const App: React.FC = () => {
     const handleKeep = async () => {
         if (generatedCard) {
             try {
-                await saveCardToDB(generatedCard);
-                setCollection(prev => [generatedCard, ...prev]);
+                setLoadingText("UPLOADING TO STORAGE...");
+                setState(AppState.PROCESSING);
+                
+                // Upload images to object storage
+                const [originalPath, pokemonPath, backPath] = await Promise.all([
+                    apiService.uploadImage(generatedCard.originalImage),
+                    apiService.uploadImage(generatedCard.pokemonImage),
+                    generatedCard.cardBackImage ? apiService.uploadImage(generatedCard.cardBackImage) : Promise.resolve(undefined)
+                ]);
+                
+                // Save card with object storage paths
+                const savedCard = await apiService.saveCard({
+                    originalImage: originalPath,
+                    pokemonImage: pokemonPath,
+                    cardBackImage: backPath,
+                    stats: generatedCard.stats,
+                    timestamp: generatedCard.timestamp,
+                    isPublic: generatedCard.isPublic,
+                });
+                
+                setCollection(prev => [savedCard, ...prev]);
                 playSaveSound();
                 setState(AppState.DECK);
                 setGeneratedCard(null);
                 setSearchTerm(''); 
             } catch (e) {
-                console.error("DB Save failed", e);
-                alert("Could not save to database.");
+                console.error("Save failed", e);
+                alert("Could not save card. Please try again.");
+                setState(AppState.RESULT);
             }
         }
     };
@@ -265,10 +292,11 @@ const App: React.FC = () => {
         e.stopPropagation();
         if (window.confirm("RELEASE ENTITY? This action cannot be undone.")) {
             try {
-                await deleteCardFromDB(id);
+                await apiService.deleteCard(id);
                 setCollection(prev => prev.filter(c => c.id !== id));
             } catch (err) {
                 console.error("Delete failed", err);
+                alert("Could not delete card. Please try again.");
             }
         }
     };
@@ -436,6 +464,64 @@ const App: React.FC = () => {
             </div>
         </div>
     );
+
+    // Show loading screen while checking authentication
+    if (authLoading) {
+        return (
+            <div className="h-[100dvh] w-full bg-[#1c140d] flex flex-col items-center justify-center text-amber-400 font-fredoka">
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                    <div className="absolute bottom-0 w-[200%] h-[60%] bg-[linear-gradient(transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px),_linear-gradient(90deg,transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] animate-grid-move origin-bottom opacity-100"></div>
+                </div>
+                <div className="z-10 flex flex-col items-center gap-4">
+                    <h1 className="font-pixel text-2xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-amber-600 tracking-widest animate-pulse">
+                        POKEPALS
+                    </h1>
+                    <div className="font-mono text-xs text-amber-500">Authenticating...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Show login screen if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div className="h-[100dvh] w-full bg-[#1c140d] flex flex-col items-center justify-center text-amber-400 font-fredoka relative">
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                    <div className="absolute bottom-0 w-[200%] h-[60%] bg-[linear-gradient(transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px),_linear-gradient(90deg,transparent_0%,_rgba(217,119,6,0.2)_1px,_transparent_1px)] bg-[size:40px_40px] [transform:perspective(500px)_rotateX(60deg)] animate-grid-move origin-bottom opacity-100"></div>
+                    <div className="absolute inset-0 opacity-40">
+                        {[...Array(30)].map((_, i) => (
+                            <div key={i} className="absolute w-[2px] h-[2px] bg-yellow-100 rounded-full animate-twinkle" style={{
+                                top: `${Math.random() * 60}%`,
+                                left: `${Math.random() * 100}%`,
+                                animationDelay: `${Math.random() * 3}s`
+                            }}></div>
+                        ))}
+                    </div>
+                </div>
+                <div className="z-10 flex flex-col items-center space-y-12 p-6 text-center w-full max-w-lg">
+                    <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-gradient-to-b from-yellow-200 via-amber-500 to-amber-900 blur-2xl opacity-40 z-[-1]"></div>
+                    <div className="relative animate-float">
+                        <h1 className="font-pixel text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-amber-600 drop-shadow-[4px_4px_0_#451a03] tracking-widest leading-tight">
+                            POKEPALS
+                        </h1>
+                        <p className="font-pixel text-[8px] md:text-[10px] text-amber-200 tracking-[0.4em] uppercase mt-4 text-glow">
+                            Insert Coin to Collect Friends
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        <p className="font-mono text-xs text-amber-300">Please sign in to continue</p>
+                        <div className="relative group cursor-pointer" onClick={login}>
+                            <div className="absolute -inset-2 bg-red-600 rounded-lg blur-lg opacity-30 group-hover:opacity-60 transition-opacity animate-pulse"></div>
+                            <button className="relative px-12 py-5 bg-[#b91c1c] text-white font-pixel text-xs rounded border-b-8 border-[#7f1d1d] active:border-b-0 active:translate-y-2 transition-all flex items-center gap-3 group-hover:brightness-110">
+                                <span className="animate-blink">▶</span> SIGN IN WITH REPLIT
+                            </button>
+                        </div>
+                    </div>
+                    <p className="font-mono text-[8px] text-amber-700">V2.5.0 - NANO BANANA BUILD</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="h-[100dvh] w-full bg-[#1c140d] flex flex-col overflow-hidden text-amber-400 font-fredoka relative">

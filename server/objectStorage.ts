@@ -156,18 +156,31 @@ export class ObjectStorageService {
   
     const url = new URL(rawPath);
     const rawObjectPath = url.pathname;
-  
-    let objectEntityDir = this.getPrivateObjectDir();
-    if (!objectEntityDir.endsWith("/")) {
-      objectEntityDir = `${objectEntityDir}/`;
+    
+    const { bucketName, objectName } = parseObjectPath(rawObjectPath);
+    
+    let privateObjectDir = this.getPrivateObjectDir();
+    let privateBucketName: string;
+    let privatePrefix = '';
+    
+    try {
+      const parsed = parseObjectPath(privateObjectDir);
+      privateBucketName = parsed.bucketName;
+      privatePrefix = parsed.objectName;
+    } catch (e) {
+      privateBucketName = privateObjectDir.replace(/^\//, '');
     }
-  
-    if (!rawObjectPath.startsWith(objectEntityDir)) {
+    
+    if (bucketName !== privateBucketName) {
       return rawObjectPath;
     }
-  
-    const entityId = rawObjectPath.slice(objectEntityDir.length);
-    return `/objects/${entityId}`;
+    
+    if (privatePrefix && objectName.startsWith(privatePrefix + '/')) {
+      const entityId = objectName.slice(privatePrefix.length + 1);
+      return `/objects/${entityId}`;
+    }
+    
+    return `/objects/${objectName}`;
   }
 
   async trySetObjectEntityAclPolicy(
