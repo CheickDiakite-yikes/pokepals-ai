@@ -1,0 +1,83 @@
+import {
+  users,
+  cards,
+  type User,
+  type UpsertUser,
+  type InsertCard,
+  type Card,
+} from "../shared/schema.js";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
+
+export interface IStorage {
+  // User operations - Required for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  updateTrainerName(userId: string, trainerName: string): Promise<void>;
+  
+  // Card operations
+  createCard(card: InsertCard): Promise<Card>;
+  getUserCards(userId: string): Promise<Card[]>;
+  getAllPublicCards(): Promise<Card[]>;
+  deleteCard(cardId: string, userId: string): Promise<void>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // User operations - Required for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  async updateTrainerName(userId: string, trainerName: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ trainerName, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  // Card operations
+  async createCard(card: InsertCard): Promise<Card> {
+    const [newCard] = await db.insert(cards).values(card).returning();
+    return newCard;
+  }
+
+  async getUserCards(userId: string): Promise<Card[]> {
+    return await db
+      .select()
+      .from(cards)
+      .where(eq(cards.userId, userId))
+      .orderBy(desc(cards.timestamp));
+  }
+
+  async getAllPublicCards(): Promise<Card[]> {
+    return await db
+      .select()
+      .from(cards)
+      .where(eq(cards.isPublic, true))
+      .orderBy(desc(cards.timestamp));
+  }
+
+  async deleteCard(cardId: string, userId: string): Promise<void> {
+    await db
+      .delete(cards)
+      .where(eq(cards.id, cardId));
+  }
+}
+
+export const storage = new DatabaseStorage();
