@@ -87,32 +87,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
+      console.log(`[GET /api/cards] Fetching cards for user: ${userId}`);
+      
       const cards = await storage.getUserCards(userId);
+      console.log(`[GET /api/cards] Found ${cards.length} cards in database`);
       
       // Transform database format to frontend format
-      const frontendCards = cards.map(card => ({
-        id: card.id,
-        originalImage: card.originalImageUrl || '',
-        pokemonImage: card.pokemonImageUrl,
-        cardBackImage: card.cardBackImageUrl || '',
-        stats: {
-          name: card.name,
-          type: card.type,
-          hp: card.hp,
-          attack: card.attack,
-          defense: card.defense,
-          description: card.description,
-          moves: card.moves,
-          weakness: card.weakness,
-          rarity: card.rarity,
-        },
-        timestamp: new Date(card.timestamp).getTime(),
-        isPublic: card.isPublic,
-      }));
+      const frontendCards = cards.map((card, index) => {
+        console.log(`[GET /api/cards] Transforming card ${index + 1}/${cards.length}: ${card.id}, name: ${card.name}, has moves: ${!!card.moves}`);
+        
+        return {
+          id: card.id,
+          originalImage: card.originalImageUrl || '',
+          pokemonImage: card.pokemonImageUrl,
+          cardBackImage: card.cardBackImageUrl || '',
+          stats: {
+            name: card.name,
+            type: card.type,
+            hp: card.hp,
+            attack: card.attack,
+            defense: card.defense,
+            description: card.description,
+            moves: card.moves,
+            weakness: card.weakness,
+            rarity: card.rarity,
+          },
+          timestamp: new Date(card.timestamp).getTime(),
+          isPublic: card.isPublic,
+        };
+      });
       
+      console.log(`[GET /api/cards] Successfully transformed ${frontendCards.length} cards`);
       res.json(frontendCards);
     } catch (error) {
-      console.error("Error fetching cards:", error);
+      console.error("[GET /api/cards] Error fetching cards:", error);
       res.status(500).json({ message: "Failed to fetch cards" });
     }
   });

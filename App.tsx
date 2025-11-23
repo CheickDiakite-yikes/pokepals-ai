@@ -357,6 +357,12 @@ const App: React.FC = () => {
     const calculateLevelAndXP = () => {
         let totalXP = 0;
         collection.forEach(card => {
+            // Defensive check: skip cards without proper stats
+            if (!card || !card.stats || !card.stats.rarity) {
+                console.warn('[calculateLevelAndXP] Card missing stats:', card);
+                return;
+            }
+            
             switch(card.stats.rarity) {
                 case 'Common': totalXP += 10; break;
                 case 'Rare': totalXP += 50; break;
