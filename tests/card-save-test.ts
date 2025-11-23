@@ -154,23 +154,36 @@ async function runTests() {
     const cards = await getRes.json();
     const card = cards[0];
     
-    const requiredFields = ['id', 'userId', 'name', 'type', 'hp', 'attack', 'defense', 'description', 'moves', 'weakness', 'rarity', 'pokemonImageUrl'];
-    const missingFields = requiredFields.filter(field => !(field in card));
+    // Check top-level fields
+    const requiredTopFields = ['id', 'originalImage', 'pokemonImage', 'stats', 'timestamp', 'isPublic'];
+    const missingTopFields = requiredTopFields.filter(field => !(field in card));
     
-    if (missingFields.length > 0) {
-      throw new Error(`Missing fields: ${missingFields.join(', ')}`);
+    if (missingTopFields.length > 0) {
+      throw new Error(`Missing top-level fields: ${missingTopFields.join(', ')}`);
     }
     
-    if (card.name !== 'Test Mon') {
-      throw new Error(`Expected name 'Test Mon', got '${card.name}'`);
+    // Check stats object fields
+    const requiredStatsFields = ['name', 'type', 'hp', 'attack', 'defense', 'description', 'moves', 'weakness', 'rarity'];
+    const missingStatsFields = requiredStatsFields.filter(field => !(field in card.stats));
+    
+    if (missingStatsFields.length > 0) {
+      throw new Error(`Missing stats fields: ${missingStatsFields.join(', ')}`);
     }
     
-    if (card.hp !== 100) {
-      throw new Error(`Expected HP 100, got ${card.hp}`);
+    if (card.stats.name !== 'Test Mon') {
+      throw new Error(`Expected name 'Test Mon', got '${card.stats.name}'`);
     }
     
-    if (!Array.isArray(card.moves) || card.moves.length !== 2) {
-      throw new Error(`Expected 2 moves array, got ${JSON.stringify(card.moves)}`);
+    if (card.stats.hp !== 100) {
+      throw new Error(`Expected HP 100, got ${card.stats.hp}`);
+    }
+    
+    if (!Array.isArray(card.stats.moves) || card.stats.moves.length !== 2) {
+      throw new Error(`Expected 2 moves array, got ${JSON.stringify(card.stats.moves)}`);
+    }
+    
+    if (card.stats.rarity !== 'Common') {
+      throw new Error(`Expected rarity 'Common', got '${card.stats.rarity}'`);
     }
     
     results.push({

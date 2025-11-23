@@ -55,7 +55,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const card = await storage.createCard(cardData);
-      res.json(card);
+      
+      // Transform back to frontend format
+      const frontendCard = {
+        id: card.id,
+        originalImage: card.originalImageUrl || '',
+        pokemonImage: card.pokemonImageUrl,
+        cardBackImage: card.cardBackImageUrl || '',
+        stats: {
+          name: card.name,
+          type: card.type,
+          hp: card.hp,
+          attack: card.attack,
+          defense: card.defense,
+          description: card.description,
+          moves: card.moves,
+          weakness: card.weakness,
+          rarity: card.rarity,
+        },
+        timestamp: new Date(card.timestamp).getTime(),
+        isPublic: card.isPublic,
+      };
+      
+      res.json(frontendCard);
     } catch (error) {
       console.error("Error creating card:", error);
       res.status(500).json({ message: "Failed to create card" });
@@ -66,7 +88,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.session.userId!;
       const cards = await storage.getUserCards(userId);
-      res.json(cards);
+      
+      // Transform database format to frontend format
+      const frontendCards = cards.map(card => ({
+        id: card.id,
+        originalImage: card.originalImageUrl || '',
+        pokemonImage: card.pokemonImageUrl,
+        cardBackImage: card.cardBackImageUrl || '',
+        stats: {
+          name: card.name,
+          type: card.type,
+          hp: card.hp,
+          attack: card.attack,
+          defense: card.defense,
+          description: card.description,
+          moves: card.moves,
+          weakness: card.weakness,
+          rarity: card.rarity,
+        },
+        timestamp: new Date(card.timestamp).getTime(),
+        isPublic: card.isPublic,
+      }));
+      
+      res.json(frontendCards);
     } catch (error) {
       console.error("Error fetching cards:", error);
       res.status(500).json({ message: "Failed to fetch cards" });
@@ -76,7 +120,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/cards/public', async (req, res) => {
     try {
       const cards = await storage.getAllPublicCards();
-      res.json(cards);
+      
+      // Transform database format to frontend format
+      const frontendCards = cards.map(card => ({
+        id: card.id,
+        originalImage: card.originalImageUrl || '',
+        pokemonImage: card.pokemonImageUrl,
+        cardBackImage: card.cardBackImageUrl || '',
+        stats: {
+          name: card.name,
+          type: card.type,
+          hp: card.hp,
+          attack: card.attack,
+          defense: card.defense,
+          description: card.description,
+          moves: card.moves,
+          weakness: card.weakness,
+          rarity: card.rarity,
+        },
+        timestamp: new Date(card.timestamp).getTime(),
+        isPublic: card.isPublic,
+      }));
+      
+      res.json(frontendCards);
     } catch (error) {
       console.error("Error fetching public cards:", error);
       res.status(500).json({ message: "Failed to fetch public cards" });
