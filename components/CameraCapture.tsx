@@ -11,13 +11,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [stream, setStream] = useState<MediaStream | null>(null);
     const [error, setError] = useState<string>('');
+    const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
     useEffect(() => {
         const startCamera = async () => {
             try {
+                // Stop existing stream if any
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+
                 // Try High Quality first
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: { ideal: 1080 }, height: { ideal: 1080 } } 
+                    video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1080 } } 
                 });
                 setStream(mediaStream);
                 if (videoRef.current) {
@@ -28,7 +34,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
                 try {
                     // Fallback to basic constraints
                     const fallbackStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'user' } 
+                        video: { facingMode } 
                     });
                     setStream(fallbackStream);
                     if (videoRef.current) {
@@ -49,7 +55,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [facingMode]);
+
+    const toggleCamera = () => {
+        setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
+    };
 
     const capture = () => {
         playCaptureSound();
@@ -67,9 +77,11 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
             
             const ctx = canvas.getContext('2d');
             if (ctx) {
-                // Flip horizontally
-                ctx.translate(size, 0);
-                ctx.scale(-1, 1);
+                // Only flip horizontally for front camera
+                if (facingMode === 'user') {
+                    ctx.translate(size, 0);
+                    ctx.scale(-1, 1);
+                }
                 
                 ctx.drawImage(video, x, y, size, size, 0, 0, size, size);
                 const imageSrc = canvas.toDataURL('image/jpeg', 0.9);
@@ -86,7 +98,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
-                className="w-full h-full object-cover transform -scale-x-100 opacity-80 mix-blend-screen contrast-125" 
+                className={`w-full h-full object-cover opacity-80 mix-blend-screen contrast-125 ${facingMode === 'user' ? 'transform -scale-x-100' : ''}`}
             />
             <canvas ref={canvasRef} className="hidden" />
             
@@ -119,7 +131,17 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
                 </div>
             </div>
 
-            <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20 pointer-events-auto">
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-4 z-20 pointer-events-auto px-6">
+                <button
+                    onClick={toggleCamera}
+                    className="w-12 h-12 bg-amber-700/80 hover:bg-amber-600 rounded-full border-2 border-amber-500 shadow-lg active:scale-95 transition-all flex items-center justify-center"
+                    title="Switch Camera"
+                >
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+                
                 <button 
                     onClick={capture}
                     className="group relative w-20 h-20 active:scale-95 transition-transform"
@@ -129,6 +151,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
                         <div className="absolute top-2 left-3 w-4 h-2 bg-white/40 rounded-full transform -rotate-12"></div>
                     </div>
                 </button>
+
+                <div className="w-12 h-12"></div>
             </div>
 
             <style>{`

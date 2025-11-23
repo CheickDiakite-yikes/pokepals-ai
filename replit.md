@@ -34,6 +34,12 @@ Preferred communication style: Simple, everyday language.
   - Fresh profile data fetched from API to prevent stale trainer names after renames
   - Back button navigation returns to explore feed
   - New AppState.USER_PROFILE for viewing other users' profiles
+- **Camera Switching Feature**: Added ability to toggle between front and back cameras
+  - Camera switch button added to camera interface (left side of capture button)
+  - Supports both selfie mode (front camera) and environment mode (back camera)
+  - Front camera view is mirrored for natural selfie experience
+  - Back camera view is not mirrored for accurate photo capture
+  - Smooth camera transition when switching modes
 - Production-ready authentication and card storage
 
 # System Architecture
