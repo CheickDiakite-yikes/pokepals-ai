@@ -13,6 +13,12 @@ Preferred communication style: Simple, everyday language.
 - Configured Gemini API key as secret (using `gemini-3-pro-image-preview` model for card generation)
 - Fixed card saving data transformation (frontend format → database schema mapping)
 - Added comprehensive integration tests (`tests/card-save-test.ts`) - all passing ✅
+- **Critical Fix**: Removed object storage upload dependency from card creation flow
+  - Object storage integration was causing ObjectNotFoundError spam (76+ errors)
+  - Cards now save base64 images directly to PostgreSQL database
+  - Eliminates blocking PROCESSING state, cards save and display immediately
+  - App functional with simplified storage architecture
+- Added sign-out functionality to profile page with proper useAuth hook integration
 - Production-ready authentication and card storage
 
 # System Architecture

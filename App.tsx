@@ -251,21 +251,14 @@ const App: React.FC = () => {
     const handleKeep = async () => {
         if (generatedCard) {
             try {
-                setLoadingText("UPLOADING TO STORAGE...");
+                setLoadingText("SAVING CARD...");
                 setState(AppState.PROCESSING);
                 
-                // Upload images to object storage
-                const [originalPath, pokemonPath, backPath] = await Promise.all([
-                    apiService.uploadImage(generatedCard.originalImage),
-                    apiService.uploadImage(generatedCard.pokemonImage),
-                    generatedCard.cardBackImage ? apiService.uploadImage(generatedCard.cardBackImage) : Promise.resolve(undefined)
-                ]);
-                
-                // Save card with object storage paths
+                // Save card with base64 images directly (skip object storage)
                 const savedCard = await apiService.saveCard({
-                    originalImage: originalPath,
-                    pokemonImage: pokemonPath,
-                    cardBackImage: backPath,
+                    originalImage: generatedCard.originalImage,
+                    pokemonImage: generatedCard.pokemonImage,
+                    cardBackImage: generatedCard.cardBackImage,
                     stats: generatedCard.stats,
                     timestamp: generatedCard.timestamp,
                     isPublic: generatedCard.isPublic,

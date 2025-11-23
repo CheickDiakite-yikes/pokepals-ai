@@ -1,0 +1,156 @@
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+[GET /api/cards] Fetching cards for user: 2b6f5e71-3430-4c03-a40e-00ceddc0a9b0
+[GET /api/cards] Found 2 cards in database
+[GET /api/cards] Transforming card 1/2: 1763932163454, name: Gapey Gaze, has moves: true
+[GET /api/cards] Transforming card 2/2: 1763931854133, name: Pouty Gaze, has moves: true
+[GET /api/cards] Successfully transformed 2 cards
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+Error checking object access: ObjectNotFoundError: Object not found
+    at ObjectStorageService.getObjectEntityFile (/home/runner/workspace/server/objectStorage.ts:128:13)
+    at <anonymous> (/home/runner/workspace/server/routes.ts:186:53)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
+    at /home/runner/workspace/node_modules/router/index.js:297:9
+    at processParams (/home/runner/workspace/node_modules/router/index.js:582:12)
+    at next (/home/runner/workspace/node_modules/router/index.js:291:5)
+    at isAuthenticated (/home/runner/workspace/server/auth.ts:103:3)
+    at Layer.handleRequest (/home/runner/workspace/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/home/runner/workspace/node_modules/router/index.js:342:13)
