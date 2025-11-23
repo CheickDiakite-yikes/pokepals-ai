@@ -6,6 +6,15 @@ POKEPALS is a retro-themed web application that transforms photos of friends int
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes
+
+**November 23, 2025**:
+- Replaced Replit OAuth with custom email/password authentication (bcrypt, session-based)
+- Configured Gemini API key as secret (using `gemini-3-pro-image-preview` model for card generation)
+- Fixed card saving data transformation (frontend format → database schema mapping)
+- Added comprehensive integration tests (`tests/card-save-test.ts`) - all passing ✅
+- Production-ready authentication and card storage
+
 # System Architecture
 
 ## Frontend Architecture
@@ -41,6 +50,7 @@ Preferred communication style: Simple, everyday language.
 - Authentication middleware (`isAuthenticated`) protects user-specific routes
 - Card CRUD operations scoped to authenticated user
 - Profile management separate from card operations
+- Data transformation layer in POST /api/cards maps frontend format (originalImage, pokemonImage, stats JSON) to database schema
 
 **Key Architectural Choices**:
 - **Session-based auth over JWT**: Chosen for better security (server-side revocation) and simpler implementation
@@ -74,9 +84,9 @@ Preferred communication style: Simple, everyday language.
 
 **AI/ML Services**:
 - **Google Gemini API** (`@google/genai`): Primary AI service for two distinct tasks:
-  1. Image analysis → generates card stats (name, type, HP, attack, defense, moves, rarity) based on photo content scoring rubric
-  2. Image generation → creates stylized Pokemon-like character art from original photo
-- API key management supports both environment variables and AI Studio key selection UI
+  1. Image analysis → generates card stats (name, type, HP, attack, defense, moves, rarity) using `gemini-2.5-flash` based on photo content scoring rubric
+  2. Image generation → creates stylized Pokemon-like character art using `gemini-3-pro-image-preview` model
+- API key stored securely in Replit Secrets as `GEMINI_API_KEY`
 - Rarity determination uses 100-point scoring system (environment, subject, vibe, extras)
 
 **Cloud Services**:

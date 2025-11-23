@@ -30,12 +30,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
-      const { timestamp, ...cardFields } = req.body;
+      const { originalImage, pokemonImage, cardBackImage, stats: statsString, timestamp, isPublic } = req.body;
+      
+      // Parse stats from JSON string
+      const stats = typeof statsString === 'string' ? JSON.parse(statsString) : statsString;
+      
+      // Transform frontend card format to database schema
       const cardData = {
-        ...cardFields,
-        userId,
         id: Date.now().toString(),
+        userId,
+        originalImageUrl: originalImage || null,
+        pokemonImageUrl: pokemonImage,
+        cardBackImageUrl: cardBackImage || null,
+        name: stats.name,
+        type: stats.type,
+        hp: stats.hp,
+        attack: stats.attack,
+        defense: stats.defense,
+        description: stats.description,
+        moves: stats.moves,
+        weakness: stats.weakness,
+        rarity: stats.rarity,
+        isPublic: isPublic || false,
       };
+      
       const card = await storage.createCard(cardData);
       res.json(card);
     } catch (error) {

@@ -5,6 +5,8 @@ import { storage } from './storage';
 const SALT_ROUNDS = 12;
 
 export interface AuthRequest extends Express.Request {
+  body: any;
+  params: any;
   session: {
     userId?: string;
     save: (callback: (err: any) => void) => void;
