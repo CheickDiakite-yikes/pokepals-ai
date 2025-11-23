@@ -1,9 +1,11 @@
+modules = ["nodejs-20"]
 [nix]
 channel = "stable-25_05"
 packages = ["unzip"]
 
 [agent]
 expertMode = true
+integrations = ["javascript_log_in_with_replit:1.0.0", "javascript_object_storage:1.0.0", "javascript_database:1.0.0"]
 
 [objectStorage]
 defaultBucketID = "replit-objstore-36bb2214-0cf5-4de7-b3f5-7ab7d42ef26f"
