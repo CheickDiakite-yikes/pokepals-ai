@@ -101,8 +101,9 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
         if (!text) throw new Error("No text response from AI");
         return JSON.parse(text) as PokemonStats;
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error generating stats:", error);
+        console.error("Error details:", error.message, error.response?.data || error.details);
         return {
             name: "Glitchmon",
             type: "Digital",
@@ -189,8 +190,9 @@ export const generateCardFront = async (
         }
         return null;
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error generating card front:", error);
+        console.error("Error details:", error.message, error.response?.data || error.details);
         throw error;
     }
 };
@@ -243,8 +245,9 @@ export const generateCardBack = async (
             }
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error generating card back:", error);
+        console.error("Error details:", error.message, error.response?.data || error.details);
         return null; 
     }
 };
