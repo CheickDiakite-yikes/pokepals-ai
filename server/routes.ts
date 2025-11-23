@@ -2,8 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { signup, login, logout, isAuthenticated, getCurrentUser, type AuthRequest } from "./auth";
-import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { ObjectPermission } from "./objectAcl";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
@@ -175,69 +173,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting card:", error);
       res.status(500).json({ message: "Failed to delete card" });
-    }
-  });
-
-  // Object storage routes - using req.params[0] to capture wildcard path
-  app.use("/objects", isAuthenticated, async (req: AuthRequest, res) => {
-    const userId = req.session.userId!;
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      const canAccess = await objectStorageService.canAccessObjectEntity({
-        objectFile,
-        userId: userId,
-        requestedPermission: ObjectPermission.READ,
-      });
-      if (!canAccess) {
-        return res.sendStatus(401);
-      }
-      objectStorageService.downloadObject(objectFile, res);
-    } catch (error) {
-      console.error("Error checking object access:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.sendStatus(404);
-      }
-      return res.sendStatus(500);
-    }
-  });
-
-  app.post("/api/objects/upload", isAuthenticated, async (req: AuthRequest, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
-      
-      res.json({ uploadURL, objectPath });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  app.put("/api/cards/image", isAuthenticated, async (req: AuthRequest, res) => {
-    if (!req.body.imageURL) {
-      return res.status(400).json({ error: "imageURL is required" });
-    }
-
-    const userId = req.session.userId!;
-
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
-        req.body.imageURL,
-        {
-          owner: userId,
-          visibility: "public",
-        },
-      );
-
-      res.status(200).json({
-        objectPath: objectPath,
-      });
-    } catch (error) {
-      console.error("Error setting card image:", error);
-      res.status(500).json({ error: "Internal server error" });
     }
   });
 
