@@ -69,4 +69,4 @@ externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "npm run server & npm run dev"]
+run = ["bash", "-c", "npm run server & npm run dev & wait"]
