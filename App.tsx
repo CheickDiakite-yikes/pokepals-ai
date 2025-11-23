@@ -122,7 +122,7 @@ const TutorialOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 const App: React.FC = () => {
-    const { user, loading: authLoading, isAuthenticated, login, signup } = useAuth();
+    const { user, loading: authLoading, isAuthenticated, login, signup, logout } = useAuth();
     
     const [state, setState] = useState<AppState>(AppState.LANDING);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -355,13 +355,8 @@ const App: React.FC = () => {
     };
 
     const handleLogout = async () => {
-        try {
-            await apiService.logout();
-            setIsAuthenticated(false);
-            setState(AppState.LANDING);
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
+        await logout();
+        setState(AppState.LANDING);
     };
 
     const calculateLevelAndXP = () => {
