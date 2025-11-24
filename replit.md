@@ -87,6 +87,14 @@ Preferred communication style: Simple, everyday language.
   - Error handling: Friendly on-brand message when limit reached: "🎮 Whoa there, trainer! You've captured your 10 cards this month. Come back next month for more adventures! 🌟"
   - Usage stats automatically refresh after each successful card save
   - Monthly reset: Limit resets on first day of each calendar month
+- **Admin Unlimited Access**: Implemented unlimited card generation for admin user
+  - Admin user (zorovt18@gmail.com) has unlimited card generation (no monthly limit)
+  - Backend: Added isAdminUser() helper function for consistent privilege checks
+  - Security: Email uniqueness enforced by database schema prevents privilege escalation
+  - API: Returns isAdmin: true flag in usage endpoint for admin user
+  - Frontend: Shows "👑 ADMIN MODE - UNLIMITED CAPTURES" with purple border for admin
+  - Limit bypass: POST /api/cards skips monthly count validation for admin user only
+  - Regular users maintain 10 card/month limit with all existing functionality
 
 # System Architecture
 
