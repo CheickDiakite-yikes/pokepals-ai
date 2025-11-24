@@ -4,6 +4,11 @@ import { storage } from "./storage";
 import { signup, login, logout, isAuthenticated, getCurrentUser, type AuthRequest } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for deployment
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
   // Auth routes
   app.post('/api/auth/signup', signup);
   app.post('/api/auth/login', login);
@@ -276,7 +281,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     
-    app.get('*', (req, res) => {
+    // Catch-all for SPA routes - serves index.html for non-API requests
+    app.get('/*', (req, res) => {
+      // Don't serve index.html for API routes (safety check)
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ message: 'API endpoint not found' });
+      }
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   }
