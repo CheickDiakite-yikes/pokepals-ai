@@ -77,6 +77,17 @@ Preferred communication style: Simple, everyday language.
   - SESSION_SECRET configured as secret for production
 - Production-ready authentication and card storage
 
+**November 24, 2025**:
+- **Monthly Usage Limit**: Implemented 10 cards per month limit to prevent abuse and control AI generation costs
+  - Backend: Added getMonthlyCardCount storage method that counts cards created in current calendar month
+  - API: GET /api/cards/usage endpoint returns usage statistics (used, limit, remaining, hasReachedLimit)
+  - Validation: POST /api/cards enforces 10 card limit per user per month (returns 429 if exceeded)
+  - Frontend: Camera view displays color-coded usage counter showing "CAPTURES: X/10 THIS MONTH"
+  - UX: Visual feedback with green (plenty remaining), amber (≤2 remaining), or red (limit reached) borders
+  - Error handling: Friendly on-brand message when limit reached: "🎮 Whoa there, trainer! You've captured your 10 cards this month. Come back next month for more adventures! 🌟"
+  - Usage stats automatically refresh after each successful card save
+  - Monthly reset: Limit resets on first day of each calendar month
+
 # System Architecture
 
 ## Frontend Architecture
