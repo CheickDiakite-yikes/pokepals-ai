@@ -16,6 +16,7 @@ export interface IStorage {
   createUser(user: { email: string; passwordHash: string; trainerName?: string | null }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateTrainerName(userId: string, trainerName: string): Promise<void>;
+  updateProfileImage(userId: string, profileImageUrl: string): Promise<void>;
   
   // Card operations
   createCard(card: InsertCard): Promise<Card>;
@@ -66,6 +67,13 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(users)
       .set({ trainerName, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  async updateProfileImage(userId: string, profileImageUrl: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ profileImageUrl, updatedAt: new Date() })
       .where(eq(users.id, userId));
   }
 
