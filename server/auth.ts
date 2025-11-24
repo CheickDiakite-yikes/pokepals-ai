@@ -45,7 +45,7 @@ export const signup: RequestHandler = async (req, res) => {
         console.error('Session save error:', err);
         return res.status(500).json({ message: 'Failed to save session' });
       }
-      res.json({ id: user.id, email: user.email, trainerName: user.trainerName });
+      res.json({ id: user.id, email: user.email, trainerName: user.trainerName, profileImageUrl: user.profileImageUrl });
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -77,7 +77,7 @@ export const login: RequestHandler = async (req, res) => {
         console.error('Session save error:', err);
         return res.status(500).json({ message: 'Failed to save session' });
       }
-      res.json({ id: user.id, email: user.email, trainerName: user.trainerName });
+      res.json({ id: user.id, email: user.email, trainerName: user.trainerName, profileImageUrl: user.profileImageUrl });
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -115,7 +115,7 @@ export const getCurrentUser: RequestHandler = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({ id: user.id, email: user.email, trainerName: user.trainerName });
+    res.json({ id: user.id, email: user.email, trainerName: user.trainerName, profileImageUrl: user.profileImageUrl });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Failed to get user' });
