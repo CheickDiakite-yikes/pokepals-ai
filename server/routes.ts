@@ -55,9 +55,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Card routes
+  // Get monthly usage stats
+  app.get('/api/cards/usage', isAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.session.userId!;
+      const monthlyCount = await storage.getMonthlyCardCount(userId);
+      const limit = 10;
+      
+      res.json({
+        used: monthlyCount,
+        limit: limit,
+        remaining: Math.max(0, limit - monthlyCount),
+        hasReachedLimit: monthlyCount >= limit
+      });
+    } catch (error) {
+      console.error("Error fetching usage stats:", error);
+      res.status(500).json({ message: "Failed to fetch usage stats" });
+    }
+  });
+
   app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
+      
+      // Check monthly limit (10 cards per month)
+      const monthlyCount = await storage.getMonthlyCardCount(userId);
+      const MONTHLY_LIMIT = 10;
+      
+      if (monthlyCount >= MONTHLY_LIMIT) {
+        return res.status(429).json({ 
+          message: "Monthly card limit reached",
+          used: monthlyCount,
+          limit: MONTHLY_LIMIT
+        });
+      }
+      
       const { originalImage, pokemonImage, cardBackImage, stats: statsString, timestamp, isPublic } = req.body;
       
       // Parse stats from JSON string
