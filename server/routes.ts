@@ -281,12 +281,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     
-    // Catch-all for SPA routes - serves index.html for non-API requests
-    app.get('/*', (req, res) => {
-      // Don't serve index.html for API routes (safety check)
-      if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ message: 'API endpoint not found' });
+    // Fallback middleware for SPA - serves index.html for any non-API GET requests
+    app.use((req, res, next) => {
+      // Only handle GET requests
+      if (req.method !== 'GET') {
+        return next();
       }
+      
+      // Don't handle API routes
+      if (req.path.startsWith('/api/')) {
+        return next();
+      }
+      
+      // Serve index.html for all other routes (SPA routing)
       res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
   }
