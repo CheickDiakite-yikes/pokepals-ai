@@ -109,12 +109,10 @@ const App: React.FC = () => {
             }
 
             // 2. Load Profile from user data
-            if (user?.trainerName) {
-                setTrainerProfile({ 
-                    name: user.trainerName,
-                    avatar: user.profileImageUrl || undefined
-                });
-            }
+            setTrainerProfile({
+                name: user?.trainerName || "ASH KETCHUM",
+                avatar: user?.profileImageUrl || undefined
+            });
 
             // 3. Load Likes (small data, keeping in localStorage for simplicity as it's just IDs)
             const savedLikes = localStorage.getItem('pokepals_likes');
@@ -310,14 +308,12 @@ const App: React.FC = () => {
             const reader = new FileReader();
             reader.onloadend = async () => {
                 const avatarDataUrl = reader.result as string;
-                const newProfile = { ...trainerProfile, avatar: avatarDataUrl };
                 try {
                     // Save to backend (PostgreSQL)
                     await apiService.updateProfileImage(avatarDataUrl);
-                    // Refresh user context to persist across sessions
+                    // Refresh auth context (single source of truth)
                     await refetchUser();
-                    // Update local state
-                    setTrainerProfile(newProfile);
+                    // trainerProfile will be updated via useEffect when user changes
                 } catch (err) {
                     console.error("Profile image update failed", err);
                     alert("Failed to update profile image. Please try again.");
@@ -329,12 +325,19 @@ const App: React.FC = () => {
 
     const handleNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const newName = e.target.value.toUpperCase();
-        const newProfile = { ...trainerProfile, name: newName };
-        setTrainerProfile(newProfile); // Optimistic UI
+        setTrainerProfile(prev => ({ ...prev, name: newName })); // Optimistic UI
         try {
-            await saveProfileToDB(newProfile);
+            await apiService.updateProfile(newName);
+            // Refresh auth context (single source of truth)
+            await refetchUser();
+            // trainerProfile will be updated via useEffect when user changes
         } catch (err) {
             console.error(err);
+            // Revert on error
+            setTrainerProfile({
+                name: user?.trainerName || "ASH KETCHUM",
+                avatar: user?.profileImageUrl || undefined
+            });
         }
     };
 
