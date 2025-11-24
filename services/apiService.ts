@@ -6,6 +6,7 @@ export interface AuthUser {
   id: string;
   email?: string;
   trainerName?: string;
+  profileImageUrl?: string;
 }
 
 export const apiService = {
@@ -68,6 +69,17 @@ export const apiService = {
       body: JSON.stringify({ trainerName }),
     });
     if (!res.ok) throw new Error('Failed to update profile');
+    return await res.json();
+  },
+
+  async updateProfileImage(profileImageUrl: string): Promise<AuthUser> {
+    const res = await fetch(`${API_BASE}/api/profile/image`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ profileImageUrl }),
+    });
+    if (!res.ok) throw new Error('Failed to update profile image');
     return await res.json();
   },
 

@@ -110,7 +110,10 @@ const App: React.FC = () => {
 
             // 2. Load Profile from user data
             if (user?.trainerName) {
-                setTrainerProfile({ name: user.trainerName });
+                setTrainerProfile({ 
+                    name: user.trainerName,
+                    avatar: user.profileImageUrl || undefined
+                });
             }
 
             // 3. Load Likes (small data, keeping in localStorage for simplicity as it's just IDs)
@@ -306,12 +309,16 @@ const App: React.FC = () => {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = async () => {
-                const newProfile = { ...trainerProfile, avatar: reader.result as string };
+                const avatarDataUrl = reader.result as string;
+                const newProfile = { ...trainerProfile, avatar: avatarDataUrl };
                 try {
-                    await saveProfileToDB(newProfile);
+                    // Save to backend (PostgreSQL)
+                    await apiService.updateProfileImage(avatarDataUrl);
+                    // Update local state
                     setTrainerProfile(newProfile);
                 } catch (err) {
-                    console.error("Profile save failed", err);
+                    console.error("Profile image update failed", err);
+                    alert("Failed to update profile image. Please try again.");
                 }
             };
             reader.readAsDataURL(file);
