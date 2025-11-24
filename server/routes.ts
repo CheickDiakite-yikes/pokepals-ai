@@ -29,6 +29,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update profile image
+  app.patch('/api/profile/image', isAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const userId = req.session.userId!;
+      const { profileImageUrl } = req.body;
+      
+      if (!profileImageUrl || typeof profileImageUrl !== 'string') {
+        return res.status(400).json({ message: "profileImageUrl is required and must be a string" });
+      }
+      
+      await storage.updateProfileImage(userId, profileImageUrl);
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      res.status(500).json({ message: "Failed to update profile image" });
+    }
+  });
+
   // Card routes
   app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
