@@ -7,7 +7,7 @@ import {
   type Card,
 } from "../shared/schema.js";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, gte, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -25,6 +25,7 @@ export interface IStorage {
   getUserPublicCards(userId: string): Promise<Card[]>;
   deleteCard(cardId: string, userId: string): Promise<void>;
   updateCardPublicStatus(cardId: string, userId: string, isPublic: boolean): Promise<void>;
+  getMonthlyCardCount(userId: string): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -118,6 +119,21 @@ export class DatabaseStorage implements IStorage {
       .update(cards)
       .set({ isPublic })
       .where(and(eq(cards.id, cardId), eq(cards.userId, userId)));
+  }
+
+  async getMonthlyCardCount(userId: string): Promise<number> {
+    const now = new Date();
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(cards)
+      .where(and(
+        eq(cards.userId, userId),
+        gte(cards.timestamp, firstDayOfMonth)
+      ));
+    
+    return Number(result[0]?.count || 0);
   }
 }
 
