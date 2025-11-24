@@ -56,7 +56,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Card routes
   // Admin user with unlimited access
+  // Note: Email is unique in database (schema enforces this), so this email cannot be hijacked by other users
   const ADMIN_EMAIL = 'zorovt18@gmail.com';
+  
+  // Helper function to check if user is admin
+  const isAdminUser = (user: any): boolean => {
+    return user && user.email === ADMIN_EMAIL;
+  };
   
   // Get monthly usage stats
   app.get('/api/cards/usage', isAuthenticated, async (req: AuthRequest, res) => {
@@ -69,12 +75,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Admin users have unlimited access
-      if (user.email === ADMIN_EMAIL) {
+      if (isAdminUser(user)) {
+        const monthlyCount = await storage.getMonthlyCardCount(userId);
         return res.json({
-          used: await storage.getMonthlyCardCount(userId),
+          used: monthlyCount,
           limit: 999999,
           remaining: 999999,
-          hasReachedLimit: false
+          hasReachedLimit: false,
+          isAdmin: true
         });
       }
       
@@ -104,7 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check monthly limit (10 cards per month) - skip for admin
-      if (user.email !== ADMIN_EMAIL) {
+      if (!isAdminUser(user)) {
         const monthlyCount = await storage.getMonthlyCardCount(userId);
         const MONTHLY_LIMIT = 10;
         
