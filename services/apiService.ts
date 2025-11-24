@@ -91,6 +91,14 @@ export const apiService = {
     return await res.json();
   },
 
+  async getCardUsage(): Promise<{ used: number; limit: number; remaining: number; hasReachedLimit: boolean }> {
+    const res = await fetch(`${API_BASE}/api/cards/usage`, {
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Failed to fetch usage stats');
+    return await res.json();
+  },
+
   async saveCard(card: Omit<FriendCard, 'id'>): Promise<FriendCard> {
     const cardData = {
       ...card,

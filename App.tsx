@@ -85,6 +85,8 @@ const App: React.FC = () => {
     const [viewedUserName, setViewedUserName] = useState<string>('');
     const [viewedUserCards, setViewedUserCards] = useState<FriendCard[]>([]);
 
+    const [cardUsage, setCardUsage] = useState<{ used: number; limit: number; remaining: number; hasReachedLimit: boolean } | null>(null);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -140,6 +142,22 @@ const App: React.FC = () => {
         };
         
         loadPublicFeed();
+    }, [isAuthenticated, state]);
+
+    // Load card usage when camera view is shown
+    useEffect(() => {
+        if (!isAuthenticated || state !== AppState.CAMERA) return;
+        
+        const loadUsage = async () => {
+            try {
+                const usage = await apiService.getCardUsage();
+                setCardUsage(usage);
+            } catch (e) {
+                console.error("Failed to load card usage", e);
+            }
+        };
+        
+        loadUsage();
     }, [isAuthenticated, state]);
 
     const handleVisitUserProfile = async (userId: string, userName: string) => {
@@ -250,9 +268,22 @@ const App: React.FC = () => {
                 setState(AppState.DECK);
                 setGeneratedCard(null);
                 setSearchTerm(''); 
-            } catch (e) {
+                
+                // Refresh usage stats
+                try {
+                    const usage = await apiService.getCardUsage();
+                    setCardUsage(usage);
+                } catch (e) {
+                    console.error("Failed to refresh usage stats", e);
+                }
+            } catch (e: any) {
                 console.error("Save failed", e);
-                alert("Could not save card. Please try again.");
+                // Check if it's a limit reached error
+                if (e.message && e.message.includes("Monthly card limit reached")) {
+                    alert("🎮 Whoa there, trainer! You've captured your 10 cards this month. Come back next month for more adventures! 🌟");
+                } else {
+                    alert("Could not save card. Please try again.");
+                }
                 setState(AppState.RESULT);
             }
         }
@@ -568,6 +599,27 @@ const App: React.FC = () => {
                     <div className="text-center space-y-1">
                         <h2 className="font-pixel text-xs text-amber-300 text-glow">MISSION: ACQUIRE TARGET</h2>
                         <p className="font-mono text-[9px] text-amber-500/70 tracking-widest">ALIGN SUBJECT IN VIEWFINDER</p>
+                        {cardUsage && (
+                            <div className={`mt-3 px-4 py-2 rounded border ${
+                                cardUsage.hasReachedLimit 
+                                    ? 'bg-red-900/30 border-red-600/50' 
+                                    : cardUsage.remaining <= 2 
+                                        ? 'bg-amber-900/30 border-amber-600/50'
+                                        : 'bg-emerald-900/30 border-emerald-600/50'
+                            }`}>
+                                <p className="font-pixel text-[8px] text-amber-200">
+                                    {cardUsage.hasReachedLimit 
+                                        ? '⚠️ LIMIT REACHED - COME BACK NEXT MONTH' 
+                                        : `CAPTURES: ${cardUsage.used}/${cardUsage.limit} THIS MONTH`
+                                    }
+                                </p>
+                                {!cardUsage.hasReachedLimit && cardUsage.remaining <= 2 && (
+                                    <p className="font-mono text-[7px] text-amber-400/80 mt-1">
+                                        {cardUsage.remaining} {cardUsage.remaining === 1 ? 'capture' : 'captures'} remaining
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div className="w-full max-w-md relative">
                         <CameraCapture onCapture={handleCapture} />
