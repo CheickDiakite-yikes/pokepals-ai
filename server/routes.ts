@@ -55,10 +55,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Card routes
+  // Admin user with unlimited access
+  const ADMIN_EMAIL = 'zorovt18@gmail.com';
+  
   // Get monthly usage stats
   app.get('/api/cards/usage', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Admin users have unlimited access
+      if (user.email === ADMIN_EMAIL) {
+        return res.json({
+          used: await storage.getMonthlyCardCount(userId),
+          limit: 999999,
+          remaining: 999999,
+          hasReachedLimit: false
+        });
+      }
+      
+      // Regular users have 10 card limit
       const monthlyCount = await storage.getMonthlyCardCount(userId);
       const limit = 10;
       
@@ -77,17 +97,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/cards', isAuthenticated, async (req: AuthRequest, res) => {
     try {
       const userId = req.session.userId!;
+      const user = await storage.getUser(userId);
       
-      // Check monthly limit (10 cards per month)
-      const monthlyCount = await storage.getMonthlyCardCount(userId);
-      const MONTHLY_LIMIT = 10;
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
       
-      if (monthlyCount >= MONTHLY_LIMIT) {
-        return res.status(429).json({ 
-          message: "Monthly card limit reached",
-          used: monthlyCount,
-          limit: MONTHLY_LIMIT
-        });
+      // Check monthly limit (10 cards per month) - skip for admin
+      if (user.email !== ADMIN_EMAIL) {
+        const monthlyCount = await storage.getMonthlyCardCount(userId);
+        const MONTHLY_LIMIT = 10;
+        
+        if (monthlyCount >= MONTHLY_LIMIT) {
+          return res.status(429).json({ 
+            message: "Monthly card limit reached",
+            used: monthlyCount,
+            limit: MONTHLY_LIMIT
+          });
+        }
       }
       
       const { originalImage, pokemonImage, cardBackImage, stats: statsString, timestamp, isPublic } = req.body;

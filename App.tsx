@@ -601,19 +601,23 @@ const App: React.FC = () => {
                         <p className="font-mono text-[9px] text-amber-500/70 tracking-widest">ALIGN SUBJECT IN VIEWFINDER</p>
                         {cardUsage && (
                             <div className={`mt-3 px-4 py-2 rounded border ${
-                                cardUsage.hasReachedLimit 
-                                    ? 'bg-red-900/30 border-red-600/50' 
-                                    : cardUsage.remaining <= 2 
-                                        ? 'bg-amber-900/30 border-amber-600/50'
-                                        : 'bg-emerald-900/30 border-emerald-600/50'
+                                cardUsage.limit >= 999999
+                                    ? 'bg-purple-900/30 border-purple-600/50'
+                                    : cardUsage.hasReachedLimit 
+                                        ? 'bg-red-900/30 border-red-600/50' 
+                                        : cardUsage.remaining <= 2 
+                                            ? 'bg-amber-900/30 border-amber-600/50'
+                                            : 'bg-emerald-900/30 border-emerald-600/50'
                             }`}>
                                 <p className="font-pixel text-[8px] text-amber-200">
-                                    {cardUsage.hasReachedLimit 
-                                        ? '⚠️ LIMIT REACHED - COME BACK NEXT MONTH' 
-                                        : `CAPTURES: ${cardUsage.used}/${cardUsage.limit} THIS MONTH`
+                                    {cardUsage.limit >= 999999
+                                        ? '👑 ADMIN MODE - UNLIMITED CAPTURES'
+                                        : cardUsage.hasReachedLimit 
+                                            ? '⚠️ LIMIT REACHED - COME BACK NEXT MONTH' 
+                                            : `CAPTURES: ${cardUsage.used}/${cardUsage.limit} THIS MONTH`
                                     }
                                 </p>
-                                {!cardUsage.hasReachedLimit && cardUsage.remaining <= 2 && (
+                                {!cardUsage.hasReachedLimit && cardUsage.remaining <= 2 && cardUsage.limit < 999999 && (
                                     <p className="font-mono text-[7px] text-amber-400/80 mt-1">
                                         {cardUsage.remaining} {cardUsage.remaining === 1 ? 'capture' : 'captures'} remaining
                                     </p>
