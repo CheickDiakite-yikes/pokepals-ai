@@ -602,7 +602,7 @@ const App: React.FC = () => {
                         {cardUsage && (
                             <div className={`mt-3 px-4 py-2 rounded border ${
                                 cardUsage.isAdmin
-                                    ? 'bg-purple-900/30 border-purple-600/50'
+                                    ? 'bg-yellow-900/30 border-yellow-600/60'
                                     : cardUsage.hasReachedLimit 
                                         ? 'bg-red-900/30 border-red-600/50' 
                                         : cardUsage.remaining <= 2 
