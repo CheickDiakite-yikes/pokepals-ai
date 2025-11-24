@@ -52,6 +52,13 @@ Preferred communication style: Simple, everyday language.
   - Implemented updateCardPublicStatus in storage layer with database persistence
   - Updated frontend to use API instead of IndexedDB for togglePublic
   - Public cards now persist in PostgreSQL and appear correctly in profile/explore pages
+- **Profile Picture Persistence**: Implemented complete profile image storage system
+  - Profile images stored as base64 data in PostgreSQL users.profileImageUrl (text column)
+  - Added updateProfileImage storage method and PATCH /api/profile/image endpoint
+  - Frontend calls API instead of IndexedDB for avatar uploads
+  - Profile images load from backend user data on login/refresh and persist across sessions
+  - Added sanitizeUser helper to prevent password hash exposure in API responses
+  - Security: All user-facing endpoints now strip sensitive fields (passwordHash) before returning data
 - **Deployment Configuration**: Configured Autoscale deployment for production
   - Build command: `npm run build` - Creates optimized production assets with Vite
   - Run command: `npm run server:prod` - Runs production server (no watch mode)

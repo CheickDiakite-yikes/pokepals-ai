@@ -62,7 +62,7 @@ const TutorialOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 const App: React.FC = () => {
-    const { user, loading: authLoading, isAuthenticated, login, signup, logout } = useAuth();
+    const { user, loading: authLoading, isAuthenticated, login, signup, logout, refetchUser } = useAuth();
     
     const [state, setState] = useState<AppState>(AppState.LANDING);
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -314,6 +314,8 @@ const App: React.FC = () => {
                 try {
                     // Save to backend (PostgreSQL)
                     await apiService.updateProfileImage(avatarDataUrl);
+                    // Refresh user context to persist across sessions
+                    await refetchUser();
                     // Update local state
                     setTrainerProfile(newProfile);
                 } catch (err) {

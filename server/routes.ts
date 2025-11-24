@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { signup, login, logout, isAuthenticated, getCurrentUser, type AuthRequest } from "./auth";
+import { signup, login, logout, isAuthenticated, getCurrentUser, sanitizeUser, type AuthRequest } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for deployment
@@ -22,7 +22,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { trainerName } = req.body;
       await storage.updateTrainerName(userId, trainerName);
       const user = await storage.getUser(userId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(sanitizeUser(user));
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(500).json({ message: "Failed to update profile" });
@@ -41,7 +44,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       await storage.updateProfileImage(userId, profileImageUrl);
       const user = await storage.getUser(userId);
-      res.json(user);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json(sanitizeUser(user));
     } catch (error) {
       console.error("Error updating profile image:", error);
       res.status(500).json({ message: "Failed to update profile image" });

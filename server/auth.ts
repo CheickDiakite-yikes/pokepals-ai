@@ -1,8 +1,25 @@
 import bcrypt from 'bcrypt';
 import type { RequestHandler } from 'express';
 import { storage } from './storage';
+import type { User } from '../shared/schema';
 
 const SALT_ROUNDS = 12;
+
+export interface SafeUser {
+  id: string;
+  email: string;
+  trainerName?: string | null;
+  profileImageUrl?: string | null;
+}
+
+export function sanitizeUser(user: User): SafeUser {
+  return {
+    id: user.id,
+    email: user.email,
+    trainerName: user.trainerName,
+    profileImageUrl: user.profileImageUrl,
+  };
+}
 
 export interface AuthRequest extends Express.Request {
   body: any;
