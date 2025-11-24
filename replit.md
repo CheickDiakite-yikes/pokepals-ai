@@ -58,7 +58,8 @@ Preferred communication style: Simple, everyday language.
   - Production server serves both API (backend) and static files (frontend) on port 5000
   - Static file serving from dist/ directory in production mode
   - SPA catch-all route serves index.html for all non-API routes
-  - Automatic environment detection via NODE_ENV
+  - **CRITICAL**: Must set NODE_ENV=production as deployment secret in Autoscale settings
+  - Port 5000 must be first localPort in .replit [[ports]] section for Autoscale
   - SESSION_SECRET configured as secret for production
 - Production-ready authentication and card storage
 
