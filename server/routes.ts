@@ -1,7 +1,37 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, type CardWithUser } from "./storage";
 import { signup, login, logout, isAuthenticated, getCurrentUser, sanitizeUser, type AuthRequest } from "./auth";
+
+// Simple in-memory cache for public cards feed
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+}
+
+const publicCardsCache: Map<string, CacheEntry> = new Map();
+const CACHE_TTL_MS = 30000; // 30 seconds
+
+function getCachedData(key: string): any | null {
+  const entry = publicCardsCache.get(key);
+  if (!entry) return null;
+  
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    publicCardsCache.delete(key);
+    return null;
+  }
+  
+  return entry.data;
+}
+
+function setCachedData(key: string, data: any): void {
+  publicCardsCache.set(key, { data, timestamp: Date.now() });
+}
+
+// Invalidate cache when cards change
+export function invalidatePublicCardsCache(): void {
+  publicCardsCache.clear();
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for deployment
@@ -151,6 +181,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const card = await storage.createCard(cardData);
       
+      // Invalidate cache since new card added
+      invalidatePublicCardsCache();
+      
       // Transform back to frontend format
       const frontendCard = {
         id: card.id,
@@ -222,36 +255,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/cards/public', async (req, res) => {
     try {
-      const cards = await storage.getAllPublicCards();
+      const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+      const cursorTimestamp = req.query.cursor as string | undefined;
+      const cacheKey = `public_${limit}_${cursorTimestamp || 'start'}`;
       
-      // Get user info for each card
-      const frontendCards = await Promise.all(cards.map(async (card) => {
-        const user = await storage.getUser(card.userId);
-        return {
-          id: card.id,
-          originalImage: card.originalImageUrl || '',
-          pokemonImage: card.pokemonImageUrl,
-          cardBackImage: card.cardBackImageUrl || '',
-          stats: {
-            name: card.name,
-            type: card.type,
-            hp: card.hp,
-            attack: card.attack,
-            defense: card.defense,
-            description: card.description,
-            moves: card.moves,
-            weakness: card.weakness,
-            rarity: card.rarity,
-          },
-          timestamp: new Date(card.timestamp).getTime(),
-          isPublic: card.isPublic,
-          userId: card.userId,
-          user: user?.trainerName || 'Unknown Trainer',
-          likes: 0,
-        };
+      // Check cache first
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        console.log('[GET /api/cards/public] Cache hit');
+        return res.json(cached);
+      }
+      
+      console.log('[GET /api/cards/public] Cache miss, fetching from DB');
+      
+      // Use optimized query with JOIN (no N+1)
+      const cards = await storage.getPublicCardsWithUsers(limit, cursorTimestamp);
+      
+      // Transform to frontend format
+      const frontendCards = cards.map((card) => ({
+        id: card.id,
+        originalImage: card.originalImageUrl || '',
+        pokemonImage: card.pokemonImageUrl,
+        cardBackImage: card.cardBackImageUrl || '',
+        stats: {
+          name: card.name,
+          type: card.type,
+          hp: card.hp,
+          attack: card.attack,
+          defense: card.defense,
+          description: card.description,
+          moves: card.moves,
+          weakness: card.weakness,
+          rarity: card.rarity,
+        },
+        timestamp: card.timestamp ? new Date(card.timestamp).getTime() : Date.now(),
+        isPublic: card.isPublic,
+        userId: card.userId,
+        user: card.trainerName || 'Unknown Trainer',
+        likes: 0,
       }));
       
-      res.json(frontendCards);
+      // Use timestamp as cursor for correct pagination ordering
+      const lastCard = frontendCards[frontendCards.length - 1];
+      const response = {
+        cards: frontendCards,
+        nextCursor: frontendCards.length === limit && lastCard 
+          ? new Date(lastCard.timestamp).toISOString() 
+          : null,
+      };
+      
+      // Cache the result
+      setCachedData(cacheKey, response);
+      
+      res.json(response);
     } catch (error) {
       console.error("Error fetching public cards:", error);
       res.status(500).json({ message: "Failed to fetch public cards" });
@@ -272,6 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       await storage.deleteCard(cardId, userId);
+      invalidatePublicCardsCache();
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting card:", error);
@@ -299,6 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       await storage.updateCardPublicStatus(cardId, userId, isPublic);
+      invalidatePublicCardsCache();
       res.json({ success: true, isPublic });
     } catch (error) {
       console.error("Error updating card:", error);

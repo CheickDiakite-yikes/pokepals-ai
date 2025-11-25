@@ -134,8 +134,8 @@ const App: React.FC = () => {
         
         const loadPublicFeed = async () => {
             try {
-                const publicCards = await apiService.getPublicCards();
-                setFeed(publicCards);
+                const response = await apiService.getPublicCards();
+                setFeed(response.cards);
             } catch (e) {
                 console.error("Failed to load public feed", e);
             }

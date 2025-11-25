@@ -189,8 +189,16 @@ export const apiService = {
     return await res.json();
   },
 
-  async getPublicCards(): Promise<Array<FriendCard & { user: string; userId: string; likes: number }>> {
-    const res = await fetch(`${API_BASE}/api/cards/public`, {
+  async getPublicCards(limit?: number, cursor?: string): Promise<{
+    cards: Array<FriendCard & { user: string; userId: string; likes: number }>;
+    nextCursor: string | null;
+  }> {
+    const params = new URLSearchParams();
+    if (limit) params.set('limit', limit.toString());
+    if (cursor) params.set('cursor', cursor);
+    
+    const url = `${API_BASE}/api/cards/public${params.toString() ? '?' + params.toString() : ''}`;
+    const res = await fetch(url, {
       credentials: 'include',
     });
     if (!res.ok) throw new Error('Failed to fetch public cards');

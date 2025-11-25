@@ -9,10 +9,15 @@ import {
 import { db } from "./db";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
 
+export interface CardWithUser extends Card {
+  trainerName: string | null;
+}
+
 export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUsersByIds(ids: string[]): Promise<Map<string, User>>;
   createUser(user: { email: string; passwordHash: string; trainerName?: string | null }): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateTrainerName(userId: string, trainerName: string): Promise<void>;
@@ -22,6 +27,7 @@ export interface IStorage {
   createCard(card: InsertCard): Promise<Card>;
   getUserCards(userId: string): Promise<Card[]>;
   getAllPublicCards(): Promise<Card[]>;
+  getPublicCardsWithUsers(limit?: number, cursorTimestamp?: string): Promise<CardWithUser[]>;
   getUserPublicCards(userId: string): Promise<Card[]>;
   deleteCard(cardId: string, userId: string): Promise<void>;
   updateCardPublicStatus(cardId: string, userId: string, isPublic: boolean): Promise<void>;
@@ -38,6 +44,17 @@ export class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
+  }
+
+  async getUsersByIds(ids: string[]): Promise<Map<string, User>> {
+    if (ids.length === 0) return new Map();
+    
+    const userList = await db
+      .select()
+      .from(users)
+      .where(sql`${users.id} = ANY(${ids})`);
+    
+    return new Map(userList.map(user => [user.id, user]));
   }
 
   async createUser(userData: { email: string; passwordHash: string; trainerName?: string | null }): Promise<User> {
@@ -98,6 +115,42 @@ export class DatabaseStorage implements IStorage {
       .from(cards)
       .where(eq(cards.isPublic, true))
       .orderBy(desc(cards.timestamp));
+  }
+
+  async getPublicCardsWithUsers(limit: number = 20, cursorTimestamp?: string): Promise<CardWithUser[]> {
+    // Build query with optional cursor for pagination (using timestamp for correct ordering)
+    let query = db
+      .select({
+        id: cards.id,
+        userId: cards.userId,
+        originalImageUrl: cards.originalImageUrl,
+        pokemonImageUrl: cards.pokemonImageUrl,
+        cardBackImageUrl: cards.cardBackImageUrl,
+        name: cards.name,
+        type: cards.type,
+        hp: cards.hp,
+        attack: cards.attack,
+        defense: cards.defense,
+        description: cards.description,
+        moves: cards.moves,
+        weakness: cards.weakness,
+        rarity: cards.rarity,
+        isPublic: cards.isPublic,
+        timestamp: cards.timestamp,
+        trainerName: users.trainerName,
+      })
+      .from(cards)
+      .leftJoin(users, eq(cards.userId, users.id))
+      .where(
+        cursorTimestamp 
+          ? and(eq(cards.isPublic, true), sql`${cards.timestamp} < ${cursorTimestamp}::timestamp`)
+          : eq(cards.isPublic, true)
+      )
+      .orderBy(desc(cards.timestamp))
+      .limit(limit);
+
+    const results = await query;
+    return results as CardWithUser[];
   }
 
   async getUserPublicCards(userId: string): Promise<Card[]> {
