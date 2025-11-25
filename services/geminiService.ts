@@ -30,72 +30,65 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
         
         const prompt = `
         You are the 'Rarity Algorithm' for a Trading Card Game. 
-        Analyze this photo and assign a Rarity based on a strict 1000-POINT SCORING RUBRIC.
+        Your job is to analyze this photo and create a unique, creative trading card.
 
-        SCORING RUBRIC (0-1000 Points Total):
-        
-        1. **Environment (0-400pts)**: 
-           - 0-50pts: Plain wall, bathroom, basic room
-           - 51-100pts: Nice home interior, office, car
-           - 101-200pts: Restaurant, mall, gym, local park
-           - 201-300pts: Beach, mountain trail, city skyline, stadium
-           - 301-400pts: WORLD WONDERS (Pyramids, Eiffel Tower, Grand Canyon, Northern Lights, Machu Picchu, etc.)
-        
-        2. **Subject/Attire (0-300pts)**: 
-           - 0-50pts: Pajamas, basic casual clothes
-           - 51-100pts: Nice casual outfit
-           - 101-200pts: Stylish fashion, sports uniform, business attire
-           - 201-300pts: Formal wear, wedding attire, elaborate costume, cosplay, cultural dress
-        
-        3. **Vibe/Lighting/Composition (0-200pts)**: 
-           - 0-50pts: Standard phone selfie lighting
-           - 51-100pts: Good natural lighting, interesting angle
-           - 101-150pts: Golden hour, neon lights, professional quality
-           - 151-200pts: Dramatic shadows, cinematic composition, artistic effects
-        
-        4. **Extras & Special Factors (0-100pts)**: 
-           - +25pts: Pet in photo
-           - +25pts: Interesting prop (instrument, sports gear, artwork)
-           - +25pts: Group of friends
-           - +25pts: Action shot (jumping, dancing, sports)
+        ## STEP 1: SCENE ANALYSIS (do this silently)
+        Observe and note:
+        - What colors dominate? (warm/cool/neutral/vibrant)
+        - What is the person's expression/energy? (happy/fierce/calm/mysterious/playful)
+        - What are they wearing? (casual/sporty/formal/colorful/dark)
+        - What's in the background? (indoor/outdoor/nature/urban/decorated)
+        - Any props, pets, or special elements?
+        - What's the overall mood/vibe?
 
-        RARITY THRESHOLDS:
-        - **EXOTIC** (Score 850-1000): Bucket-list locations, once-in-a-lifetime moments
-        - **LEGENDARY** (Score 650-849): Amazing locations, special events, incredible style
-        - **RARE** (Score 350-649): Good locations, nice outfits, effort shown
-        - **COMMON** (Score 0-349): Everyday moments, casual settings
-
-        TYPE SELECTION - Choose based on the PERSON'S ENERGY, not just lighting:
-        IMPORTANT: DO NOT default to Ghost or Psychic! Consider ALL types equally.
+        ## STEP 2: SCORING (0-1000 Points)
         
-        - **Electric**: Phone selfies, tech vibes, bright personality, energetic expressions, modern/urban
-        - **Fire**: Passionate poses, warm colors, red clothing, confident energy, intense expressions
-        - **Water**: Relaxed/chill vibes, blue clothing, calm expressions, poolside, bathroom selfies
-        - **Fighting**: Strong poses, athletic wear, gym photos, competitive spirit, flexing
-        - **Nature**: Green clothing, plants visible, outdoor settings, peaceful vibes
-        - **Steel**: Sleek style, metallic accessories, professional look, structured poses
-        - **Dragon**: Power poses, majestic confidence, bold fashion, commanding presence
-        - **Cosmic**: Dreamy expressions, starry/sparkly elements, mystical aesthetic
-        - **Psychic**: ONLY for truly mysterious/artistic photos with unusual angles or mind-bending effects
-        - **Ghost**: ONLY for actual Halloween costumes, spooky makeup, or genuinely eerie settings
+        **Environment (0-400pts)**: 
+        - 0-50: Plain wall, basic room
+        - 51-100: Nice interior, office, car
+        - 101-200: Restaurant, mall, gym, local park
+        - 201-300: Beach, mountain, city skyline, stadium
+        - 301-400: WORLD WONDERS (Pyramids, Eiffel Tower, Grand Canyon, etc.)
         
-        For normal indoor selfies: prefer Electric, Fire, Water, or Fighting based on the person's expression!
+        **Subject/Attire (0-300pts)**: 
+        - 0-50: Basic casual clothes
+        - 51-100: Nice outfit
+        - 101-200: Stylish fashion, sports uniform, business attire
+        - 201-300: Formal wear, costume, cosplay
+        
+        **Vibe/Lighting (0-200pts)**: 
+        - 0-50: Standard lighting
+        - 51-100: Good natural light, interesting angle
+        - 101-150: Golden hour, neon, professional
+        - 151-200: Cinematic, artistic effects
+        
+        **Extras (0-100pts)**: +25 each for pets, props, friends, action shots
 
-        WEAKNESS - Must match type logically:
-        - Fire → Water | Water → Electric | Electric → Nature
-        - Nature → Fire | Cosmic → Steel | Fighting → Psychic
-        - Psychic → Fighting | Ghost → Dark | Steel → Fire | Dragon → Ice
+        **Rarity**: EXOTIC (850+), LEGENDARY (650-849), RARE (350-649), COMMON (0-349)
 
-        TASK:
-        1. Calculate the TOTAL SCORE (0-1000) based on the rubric above
-        2. Assign Rarity based on score thresholds
-        3. Choose Type based on the image's dominant vibe (BE CREATIVE - don't default to Psychic!)
-        4. Set Weakness based on the type matchup chart above
-        5. Invent a unique creature Name that fits the photo's energy
-        6. Create 2 Moves (1 status/buff move, 1 attack move with damage)
-        7. Write a fun Pokedex description referencing specific details from the photo
+        ## STEP 3: TYPE SELECTION (be creative!)
+        
+        Available types: Fire, Water, Electric, Nature, Fighting, Steel, Dragon, Cosmic, Psychic, Ghost
+        
+        Choose based on YOUR creative interpretation of the image. Consider:
+        - Clothing colors (red→Fire, blue→Water, yellow→Electric, green→Nature)
+        - Expression (fierce→Fire/Fighting, calm→Water, playful→Electric, confident→Dragon)
+        - Setting (outdoors→Nature, urban→Steel/Electric, mystical→Cosmic)
+        - Props/context (sports gear→Fighting, tech→Electric, nature→Nature)
+        - Overall energy and personality vibes
+        
+        Be surprising and varied! Every image has multiple valid interpretations - pick what feels most FUN.
 
-        Return ONLY JSON with the calculated score included.
+        ## STEP 4: WEAKNESS
+        Pick a logical counter-type (e.g., Fire→Water, Electric→Nature, Fighting→Psychic, Steel→Fire, Dragon→Ice, Water→Electric)
+
+        ## STEP 5: CREATE THE CARD
+        - Invent a creative creature Name based on the photo's energy
+        - Create 2 Moves (1 status/buff, 1 attack with damage)
+        - Write a fun Pokedex description referencing specific details you observed
+        - Include a brief justification for your type choice in the description
+
+        Think through your analysis, then output ONLY the final JSON.
         `;
 
         const response = await ai.models.generateContent({
