@@ -20,6 +20,7 @@ export interface PokemonStats {
   moves: string[];
   weakness: string;
   rarity: 'Common' | 'Rare' | 'Legendary' | 'Exotic';
+  score: number;
 }
 
 export interface FriendCard {

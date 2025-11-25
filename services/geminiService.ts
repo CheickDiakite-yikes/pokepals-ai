@@ -30,38 +30,68 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
         
         const prompt = `
         You are the 'Rarity Algorithm' for a Trading Card Game. 
-        Analyze this photo and assign a Rarity based on a strict 100-POINT SCORING RUBRIC.
+        Analyze this photo and assign a Rarity based on a strict 1000-POINT SCORING RUBRIC.
 
-        SCORING RUBRIC (0-100 Points):
-        1. **Environment (0-30pts)**: 
-           - 0pts: Plain wall/indoors. 
-           - 15pts: Outdoor/Street. 
-           - 30pts: Epic Landscape, Landmark, or Space.
-        2. **Subject (0-30pts)**: 
-           - 0pts: Casual clothes. 
-           - 15pts: Stylish outfit/Accessories. 
-           - 30pts: Costume, Uniform, or Formal Wear.
-        3. **Vibe/Lighting (0-20pts)**: 
-           - 0pts: Standard lighting. 
-           - 20pts: Neon, Dramatic shadows, Golden Hour, or Filters.
-        4. **Extras (0-20pts)**: 
-           - +10pts per extra feature: Pets, Props (instruments, sports gear), or Group shot.
+        SCORING RUBRIC (0-1000 Points Total):
+        
+        1. **Environment (0-400pts)**: 
+           - 0-50pts: Plain wall, bathroom, basic room
+           - 51-100pts: Nice home interior, office, car
+           - 101-200pts: Restaurant, mall, gym, local park
+           - 201-300pts: Beach, mountain trail, city skyline, stadium
+           - 301-400pts: WORLD WONDERS (Pyramids, Eiffel Tower, Grand Canyon, Northern Lights, Machu Picchu, etc.)
+        
+        2. **Subject/Attire (0-300pts)**: 
+           - 0-50pts: Pajamas, basic casual clothes
+           - 51-100pts: Nice casual outfit
+           - 101-200pts: Stylish fashion, sports uniform, business attire
+           - 201-300pts: Formal wear, wedding attire, elaborate costume, cosplay, cultural dress
+        
+        3. **Vibe/Lighting/Composition (0-200pts)**: 
+           - 0-50pts: Standard phone selfie lighting
+           - 51-100pts: Good natural lighting, interesting angle
+           - 101-150pts: Golden hour, neon lights, professional quality
+           - 151-200pts: Dramatic shadows, cinematic composition, artistic effects
+        
+        4. **Extras & Special Factors (0-100pts)**: 
+           - +25pts: Pet in photo
+           - +25pts: Interesting prop (instrument, sports gear, artwork)
+           - +25pts: Group of friends
+           - +25pts: Action shot (jumping, dancing, sports)
 
-        RARITY THRESHOLDS (Based on Total Score):
-        - **EXOTIC** (Score 96-100): "Glitch in the matrix", Cosplay, or Surreal Art vibes.
-        - **LEGENDARY** (Score 86-95): Epic scenery, Wedding/Prom, or highly dramatic action.
-        - **RARE** (Score 60-85): Cool street fashion, pets included, or expressive emotion.
-        - **COMMON** (Score 0-59): Everyday selfies, Zoom calls, or relaxation.
+        RARITY THRESHOLDS:
+        - **EXOTIC** (Score 850-1000): Bucket-list locations, once-in-a-lifetime moments
+        - **LEGENDARY** (Score 650-849): Amazing locations, special events, incredible style
+        - **RARE** (Score 350-649): Good locations, nice outfits, effort shown
+        - **COMMON** (Score 0-349): Everyday moments, casual settings
+
+        TYPE SELECTION - Choose based on the DOMINANT VIBE of the image:
+        - **Fire**: Warm colors, energy, passion, red/orange tones, action, intensity
+        - **Water**: Cool tones, calm, beaches, pools, rain, blue themes
+        - **Electric**: Technology, neon lights, bright flashes, urban nightlife, yellow/white glow
+        - **Nature**: Plants, forests, animals, outdoors, green environments
+        - **Cosmic**: Space, stars, night sky, mystical, purple/cosmic themes
+        - **Fighting**: Sports, gym, martial arts, competitive spirit, athletic poses
+        - **Psychic**: Mysterious vibes, artistic, contemplative, unusual angles, mind-bending
+        - **Ghost**: Dark/moody, Halloween, spooky locations, shadows, ethereal
+        - **Steel**: Industrial, metallic, urban architecture, sleek modern design
+        - **Dragon**: Majestic locations, power poses, legendary backdrops, ancient sites
+
+        WEAKNESS - Must match type logically:
+        - Fire → Water | Water → Electric | Electric → Nature
+        - Nature → Fire | Cosmic → Ghost | Fighting → Psychic
+        - Psychic → Ghost | Ghost → Ghost | Steel → Fire | Dragon → Dragon
 
         TASK:
-        - Calculate the score internally.
-        - Assign the strictly corresponding Rarity.
-        - Invent a creature Name based on the visual vibe.
-        - Assign an elemental Type (Fire, Water, Digital, Nature, Cosmic, Fighting, Psychic, Ghost).
-        - Create 2 Moves (1 Status move, 1 Attack move).
-        - Write a Pokedex description referencing the photo's context.
+        1. Calculate the TOTAL SCORE (0-1000) based on the rubric above
+        2. Assign Rarity based on score thresholds
+        3. Choose Type based on the image's dominant vibe (BE CREATIVE - don't default to Psychic!)
+        4. Set Weakness based on the type matchup chart above
+        5. Invent a unique creature Name that fits the photo's energy
+        6. Create 2 Moves (1 status/buff move, 1 attack move with damage)
+        7. Write a fun Pokedex description referencing specific details from the photo
 
-        Return ONLY JSON.
+        Return ONLY JSON with the calculated score included.
         `;
 
         const response = await ai.models.generateContent({
@@ -90,9 +120,10 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
                         description: { type: Type.STRING },
                         moves: { type: Type.ARRAY, items: { type: Type.STRING } },
                         weakness: { type: Type.STRING },
-                        rarity: { type: Type.STRING, enum: ["Common", "Rare", "Legendary", "Exotic"] }
+                        rarity: { type: Type.STRING, enum: ["Common", "Rare", "Legendary", "Exotic"] },
+                        score: { type: Type.INTEGER }
                     },
-                    required: ["name", "type", "hp", "attack", "defense", "description", "moves", "weakness", "rarity"]
+                    required: ["name", "type", "hp", "attack", "defense", "description", "moves", "weakness", "rarity", "score"]
                 }
             }
         });
@@ -113,7 +144,8 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
             description: "An error occurred during scanning. This creature is missingno.",
             moves: ["Reboot", "Crash"],
             weakness: "Bugs",
-            rarity: "Common"
+            rarity: "Common",
+            score: 0
         };
     }
 };
