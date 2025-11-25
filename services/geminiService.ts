@@ -65,22 +65,26 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
         - **RARE** (Score 350-649): Good locations, nice outfits, effort shown
         - **COMMON** (Score 0-349): Everyday moments, casual settings
 
-        TYPE SELECTION - Choose based on the DOMINANT VIBE of the image:
-        - **Fire**: Warm colors, energy, passion, red/orange tones, action, intensity
-        - **Water**: Cool tones, calm, beaches, pools, rain, blue themes
-        - **Electric**: Technology, neon lights, bright flashes, urban nightlife, yellow/white glow
-        - **Nature**: Plants, forests, animals, outdoors, green environments
-        - **Cosmic**: Space, stars, night sky, mystical, purple/cosmic themes
-        - **Fighting**: Sports, gym, martial arts, competitive spirit, athletic poses
-        - **Psychic**: Mysterious vibes, artistic, contemplative, unusual angles, mind-bending
-        - **Ghost**: Dark/moody, Halloween, spooky locations, shadows, ethereal
-        - **Steel**: Industrial, metallic, urban architecture, sleek modern design
-        - **Dragon**: Majestic locations, power poses, legendary backdrops, ancient sites
+        TYPE SELECTION - Choose based on the PERSON'S ENERGY, not just lighting:
+        IMPORTANT: DO NOT default to Ghost or Psychic! Consider ALL types equally.
+        
+        - **Electric**: Phone selfies, tech vibes, bright personality, energetic expressions, modern/urban
+        - **Fire**: Passionate poses, warm colors, red clothing, confident energy, intense expressions
+        - **Water**: Relaxed/chill vibes, blue clothing, calm expressions, poolside, bathroom selfies
+        - **Fighting**: Strong poses, athletic wear, gym photos, competitive spirit, flexing
+        - **Nature**: Green clothing, plants visible, outdoor settings, peaceful vibes
+        - **Steel**: Sleek style, metallic accessories, professional look, structured poses
+        - **Dragon**: Power poses, majestic confidence, bold fashion, commanding presence
+        - **Cosmic**: Dreamy expressions, starry/sparkly elements, mystical aesthetic
+        - **Psychic**: ONLY for truly mysterious/artistic photos with unusual angles or mind-bending effects
+        - **Ghost**: ONLY for actual Halloween costumes, spooky makeup, or genuinely eerie settings
+        
+        For normal indoor selfies: prefer Electric, Fire, Water, or Fighting based on the person's expression!
 
         WEAKNESS - Must match type logically:
         - Fire → Water | Water → Electric | Electric → Nature
-        - Nature → Fire | Cosmic → Ghost | Fighting → Psychic
-        - Psychic → Ghost | Ghost → Ghost | Steel → Fire | Dragon → Dragon
+        - Nature → Fire | Cosmic → Steel | Fighting → Psychic
+        - Psychic → Fighting | Ghost → Dark | Steel → Fire | Dragon → Ice
 
         TASK:
         1. Calculate the TOTAL SCORE (0-1000) based on the rubric above
@@ -130,7 +134,9 @@ export const generateCardStats = async (originalImageBase64: string): Promise<Po
 
         const text = response.text;
         if (!text) throw new Error("No text response from AI");
-        return JSON.parse(text) as PokemonStats;
+        const stats = JSON.parse(text) as PokemonStats;
+        console.log("[GeminiService] Generated stats:", JSON.stringify(stats, null, 2));
+        return stats;
 
     } catch (error: any) {
         console.error("Error generating stats:", error);
