@@ -52,7 +52,11 @@ export const cards = pgTable("cards", {
   rarity: varchar("rarity").notNull(),
   isPublic: boolean("is_public").default(false),
   timestamp: timestamp("timestamp").defaultNow(),
-});
+}, (table) => [
+  index("idx_cards_public_timestamp").on(table.isPublic, table.timestamp),
+  index("idx_cards_user_id").on(table.userId),
+  index("idx_cards_user_timestamp").on(table.userId, table.timestamp),
+]);
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
