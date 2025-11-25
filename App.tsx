@@ -146,14 +146,11 @@ const App: React.FC = () => {
 
     // Load card usage when camera view is shown
     useEffect(() => {
-        console.log('[USAGE DEBUG] useEffect triggered - isAuthenticated:', isAuthenticated, 'state:', state, 'CAMERA:', AppState.CAMERA);
         if (!isAuthenticated || state !== AppState.CAMERA) return;
         
         const loadUsage = async () => {
             try {
-                console.log('[USAGE DEBUG] Fetching usage data...');
                 const usage = await apiService.getCardUsage();
-                console.log('[USAGE DEBUG] Usage data received:', usage);
                 setCardUsage(usage);
             } catch (e) {
                 console.error("Failed to load card usage", e);

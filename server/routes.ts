@@ -66,11 +66,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Get monthly usage stats
   app.get('/api/cards/usage', isAuthenticated, async (req: AuthRequest, res) => {
-    console.log('[GET /api/cards/usage] Request received');
     try {
       const userId = req.session.userId!;
       const user = await storage.getUser(userId);
-      console.log('[GET /api/cards/usage] User:', user?.email);
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -79,7 +77,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Admin users have unlimited access
       if (isAdminUser(user)) {
         const monthlyCount = await storage.getMonthlyCardCount(userId);
-        console.log('[GET /api/cards/usage] Admin user detected, monthly count:', monthlyCount);
         return res.json({
           used: monthlyCount,
           limit: 999999,
@@ -92,7 +89,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Regular users have 10 card limit
       const monthlyCount = await storage.getMonthlyCardCount(userId);
       const limit = 10;
-      console.log('[GET /api/cards/usage] Regular user, monthly count:', monthlyCount);
       
       res.json({
         used: monthlyCount,
