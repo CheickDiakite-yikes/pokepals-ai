@@ -165,32 +165,38 @@ export const generateCardFront = async (
         const prompt = `
         Create a FULL TRADING CARD DESIGN (Front Side).
         
+        CRITICAL LAYOUT REQUIREMENTS:
+        - The card MUST be perfectly FLAT and STRAIGHT - no tilting, no 3D perspective, no rotation
+        - All edges parallel to image borders - like a real card photographed from directly above
+        
         INPUT CONTEXT:
         - Source Image: Use this person's pose and clothes to create a stylized 3D creature.
         - Creature Name: "${stats.name}"
-        - HP: "${stats.hp}"
+        - POWER SCORE: "${stats.score}" (This is the main stat - display prominently!)
         - Element: "${stats.type}"
         - Rarity: "${stats.rarity}"
         - Move 1: "${stats.moves[0]}"
-        - Move 2: "${stats.moves[1]}" (Damage: ${stats.attack})
+        - Move 2: "${stats.moves[1]}"
 
         DESIGN INSTRUCTIONS:
         1. **LAYOUT**: Create a professional trading card frame. 
-           - Top Header: Display Name and HP clearly.
+           - Top Header: Display "${stats.name}" and "${stats.score} PWR" (power score) clearly.
            - Center: The 3D Creature art.
-           - Bottom Panel: Display the Moves and text.
+           - Bottom Panel: Display the two move names.
+           - Corner: Show "${stats.rarity}" badge.
         
         2. **ART STYLE**: 
            - High-quality 3D Game Asset / Toy style (like Amiibo or Skylander).
            - Do NOT use a real human face. Use a stylized creature/mascot face (animalistic or robotic).
-           - **The border/frame must strictly match the '${stats.type}' theme** (e.g., if Fire, use magma borders; if Digital, use neon circuits).
+           - **The border/frame must strictly match the '${stats.type}' theme** (e.g., if Fire, use magma borders; if Nature, use vine borders).
            - If Rarity is LEGENDARY or EXOTIC, make the card frame look golden, holographic, or incredibly ornate.
 
         3. **TEXT RENDERING**: 
-           - You MUST legibly write "${stats.name}" and "${stats.hp} HP" at the top of the card.
+           - You MUST legibly write "${stats.name}" at the top of the card.
+           - You MUST legibly write "${stats.score}" as the power score (this is the most important number!).
            - You MUST legibly write the move names at the bottom.
         
-        Output the FINAL COMPOSITE CARD IMAGE.
+        Output the FINAL COMPOSITE CARD IMAGE. Card must be FLAT and STRAIGHT.
         `;
 
         const response = await ai.models.generateContent({
