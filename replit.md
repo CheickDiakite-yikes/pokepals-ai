@@ -78,6 +78,13 @@ Preferred communication style: Simple, everyday language.
 - Production-ready authentication and card storage
 
 **November 24, 2025**:
+- **Explore Page Performance Optimization**: Major improvements to public cards feed
+  - Added database indexes: isPublic+timestamp composite, userId, userId+timestamp for faster queries
+  - Fixed N+1 query problem: Cards now fetched with users in single JOIN query
+  - Added 30-second in-memory cache for public cards feed (reduces DB load)
+  - Cache auto-invalidates on card create/update/delete for data freshness
+  - Implemented timestamp-based cursor pagination (20 cards per page, max 50)
+  - Response format updated: `{ cards: [], nextCursor: timestamp | null }`
 - **Monthly Usage Limit**: Implemented 10 cards per month limit to prevent abuse and control AI generation costs
   - Backend: Added getMonthlyCardCount storage method that counts cards created in current calendar month
   - API: GET /api/cards/usage endpoint returns usage statistics (used, limit, remaining, hasReachedLimit)
