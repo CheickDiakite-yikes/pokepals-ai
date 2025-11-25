@@ -242,19 +242,32 @@ export const generateCardBack = async (
         const prompt = `
         Design the BACK SIDE of a Trading Card for "${stats.name}".
         
-        TEXT TO INCLUDE (Legible Typography):
-        - Description: "${stats.description}"
-        - Type: "${stats.type}"
-        - Weakness: "${stats.weakness}"
+        CRITICAL LAYOUT REQUIREMENTS:
+        - The card MUST be perfectly FLAT and STRAIGHT - no tilting, no 3D perspective, no rotation
+        - View the card head-on as if laying flat on a table
+        - Standard trading card proportions (3:4 aspect ratio)
+        - All edges must be parallel to the image borders
         
-        VISUAL THEME:
-        - Style: ${stats.type}-themed artifact.
-        - If 'Digital': A high-tech datapad screen showing stats.
-        - If 'Nature': An ancient stone tablet with vines.
-        - If 'Fire': A burnt scroll or obsidian slab.
-        - General: Glossy, high-end collectible finish.
-
-        Ensure the Description text is readable in the center of the design.
+        TEXT TO INCLUDE (Legible Typography):
+        - Title: "${stats.name}" at the top
+        - Description: "${stats.description}" in the center
+        - Type: "${stats.type}" at the bottom left
+        - Weakness: "${stats.weakness}" at the bottom right
+        
+        VISUAL THEME (${stats.type}-themed):
+        - Electric: Glowing circuit board patterns, neon blue/yellow accents
+        - Fire: Ember borders, warm orange/red gradient, flame textures
+        - Water: Flowing wave patterns, cool blue tones, bubble effects
+        - Nature: Vine borders, leaf patterns, earthy greens
+        - Fighting: Bold metallic frame, red/orange energy, strong geometric shapes
+        - Steel: Brushed metal texture, silver/chrome finish, industrial rivets
+        - Dragon: Ornate gold frame, scale patterns, majestic purple/gold
+        - Cosmic: Starfield background, nebula colors, ethereal glow
+        - Psychic: Purple/pink gradients, mystical symbols, floating energy
+        - Ghost: Ethereal wisps, dark purple/black, spectral effects
+        
+        Style: High-end collectible card with glossy finish. Premium quality design.
+        The card must look FLAT and STRAIGHT - like a real physical trading card photographed from directly above.
         `;
 
         const response = await ai.models.generateContent({
