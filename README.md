@@ -2,6 +2,9 @@
 
 > Transform photos of your friends into collectible monster trading cards powered by AI
 
+https://youtube.com/shorts/_8ePs8tF42Q
+
+https://pokepals-cheickdiakite.replit.app/
 ---
 
 ## About
