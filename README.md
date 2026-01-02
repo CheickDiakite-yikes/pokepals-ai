@@ -1,115 +1,153 @@
-# POKEPALS
+# POKEPALS - Collect Your Friends!
 
-Transform your friends into collectible monster trading cards using AI-powered photo analysis.
+> Transform photos of your friends into collectible monster trading cards powered by AI
 
-## What is POKEPALS?
+---
 
-POKEPALS is a retro-themed web application that turns photos into unique trading cards. Snap a photo, and our AI analyzes the scene to generate a one-of-a-kind monster card complete with:
+## About
 
-- Custom monster artwork in a stylized art style
-- Dynamic stats based on the photo's environment, lighting, and subject
-- Unique abilities and moves
-- Rarity classification from Common to Legendary
-- Type assignment (Fire, Water, Nature, Electric, Psychic, Shadow)
+POKEPALS is a retro-styled web app that brings the magic of collectible card games to your camera roll. Take a photo of anyone, anywhere, and watch as AI transforms it into a unique trading card with custom artwork, stats, abilities, and rarity.
+
+Every card is one-of-a-kind. The AI analyzes your photo's environment, lighting, colors, and subject to generate truly dynamic stats. Take a photo at a famous landmark? Expect a powerful card. Capture someone doing something epic? Watch that power score climb.
+
+---
+
+## How It Works
+
+1. **Snap** - Use your phone's camera to capture a photo
+2. **Transform** - AI analyzes the scene and generates a unique monster
+3. **Collect** - Add the card to your personal deck
+4. **Share** - Make cards public for others to discover
+
+---
+
+## Card Attributes
+
+Each generated card includes:
+
+| Attribute | Description |
+|-----------|-------------|
+| **Name** | AI-generated monster name based on the photo |
+| **Type** | Fire, Water, Nature, Electric, Psychic, or Shadow |
+| **Power Score** | 0-1000 rating based on photo quality and location |
+| **Moves** | Two unique abilities with damage values |
+| **Weakness** | Counter-type for battle mechanics |
+| **Rarity** | Common, Uncommon, Rare, Epic, or Legendary |
+| **Artwork** | Stylized monster illustration generated from the photo |
+
+---
 
 ## Features
 
-### Card Generation
-- **Camera Capture**: Use front or back camera to snap photos
-- **AI Analysis**: Photos are analyzed for scene factors like colors, expressions, setting, and props
-- **Dynamic Scoring**: Cards receive a power score (0-1000) based on photo quality and location
-- **Stylized Art**: AI generates unique monster artwork from your photo
+**For Collectors**
+- 3D flip-card gallery with smooth animations
+- Rarity-based glow effects (gold for Legendary!)
+- Front and back camera support
+- Profile customization with trainer name and avatar
 
-### Card Collection
-- **Personal Deck**: View all your created cards in a 3D flip-card gallery
-- **Public Sharing**: Toggle cards between private and public visibility
-- **Profile Customization**: Set your trainer name and avatar
+**Social**
+- Browse the public explore feed
+- Visit other trainers' profiles
+- Toggle cards between private and public
 
-### Social Features
-- **Explore Feed**: Browse public cards from other trainers
-- **User Profiles**: Visit other trainers' profiles to see their collections
+**Fair Usage**
+- 10 cards per month for regular users
+- Resets on the 1st of each month
 
-### Usage Limits
-- Regular users: 10 card generations per month
-- Monthly limit resets on the 1st of each calendar month
+---
 
 ## Tech Stack
 
-**Frontend**
-- React 19 with TypeScript
-- Vite build system
-- TailwindCSS for styling
-- Custom 3D CSS transforms for card animations
+| Layer | Technologies |
+|-------|--------------|
+| Frontend | React 19, TypeScript, Vite, TailwindCSS |
+| Backend | Express.js, TypeScript, Drizzle ORM |
+| Database | PostgreSQL (Neon Serverless) |
+| Auth | Session-based with bcrypt password hashing |
+| AI | Google Gemini API (analysis + image generation) |
 
-**Backend**
-- Express.js with TypeScript
-- PostgreSQL database (Neon serverless)
-- Drizzle ORM
-- Session-based authentication with bcrypt
+---
 
-**AI Services**
-- Google Gemini API for photo analysis and stat generation
-- Google Gemini for stylized monster artwork generation
+## Quick Start
 
-## Getting Started
-
-### Prerequisites
+### Requirements
 - Node.js 20+
 - PostgreSQL database
 - Google Gemini API key
 
-### Environment Variables
-Set the following secrets:
-- `DATABASE_URL` - PostgreSQL connection string
-- `GEMINI_API_KEY` - Google Gemini API key
-- `SESSION_SECRET` - Secret for session encryption
+### Setup
 
-### Development
 ```bash
+# Install dependencies
 npm install
-npm run dev
-```
 
-### Production Build
-```bash
+# Set environment variables
+# DATABASE_URL - PostgreSQL connection string
+# GEMINI_API_KEY - Your Gemini API key
+# SESSION_SECRET - Random string for session encryption
+
+# Run in development
+npm run dev
+
+# Build for production
 npm run build
 npm run server:prod
 ```
 
-The app runs on port 5000.
+Server runs on port **5000**.
 
-## Project Structure
+---
+
+## Project Layout
 
 ```
-/
-├── client/           # React frontend source
-├── server/           # Express backend
-│   ├── routes.ts     # API endpoints
-│   ├── storage.ts    # Database operations
-│   └── auth.ts       # Authentication middleware
-├── services/         # Shared services
-│   └── geminiService.ts  # AI integration
-├── shared/           # Shared types and schema
-│   └── schema.ts     # Drizzle database schema
-├── public/           # Static assets
-└── dist/             # Production build output
+client/              React frontend
+  └── src/
+      ├── App.tsx    Main application
+      └── hooks/     Custom React hooks
+
+server/              Express backend
+  ├── routes.ts      API endpoints
+  ├── storage.ts     Database layer
+  └── auth.ts        Authentication
+
+services/            Shared services
+  └── geminiService.ts   AI integration
+
+shared/              Shared code
+  └── schema.ts      Database schema
 ```
 
-## API Endpoints
+---
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/signup` | Create new account |
-| POST | `/api/auth/login` | Sign in |
-| POST | `/api/auth/logout` | Sign out |
-| GET | `/api/auth/user` | Get current user |
-| GET | `/api/cards` | Get user's cards |
-| POST | `/api/cards` | Create new card |
-| PATCH | `/api/cards/:id` | Update card visibility |
-| DELETE | `/api/cards/:id` | Delete card |
-| GET | `/api/cards/public` | Get public cards feed |
-| GET | `/api/cards/usage` | Get monthly usage stats |
+## API Reference
 
-## License
+### Authentication
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/signup` | POST | Create account |
+| `/api/auth/login` | POST | Sign in |
+| `/api/auth/logout` | POST | Sign out |
+| `/api/auth/user` | GET | Current user info |
 
-This project is proprietary software.
+### Cards
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/cards` | GET | User's card collection |
+| `/api/cards` | POST | Generate new card |
+| `/api/cards/:id` | PATCH | Update visibility |
+| `/api/cards/:id` | DELETE | Remove card |
+| `/api/cards/public` | GET | Public feed (paginated) |
+| `/api/cards/usage` | GET | Monthly usage stats |
+
+### Profile
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/profile` | PATCH | Update trainer name |
+| `/api/profile/image` | PATCH | Update avatar |
+| `/api/users/:id` | GET | View user profile |
+| `/api/users/:id/cards` | GET | User's public cards |
+
+---
+
+Built with Replit
